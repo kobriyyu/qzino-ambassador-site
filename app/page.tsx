@@ -254,7 +254,7 @@ export default function QzinoAmbassadorProgramSite() {
         <header className="sticky top-4 z-20 rounded-[24px] border border-white/10 bg-zinc-950/80 px-5 py-4 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="Qzino" className="h-9 w-auto md:h-11" />
+              <img src="/logo.png" alt="Qzino" className="h-7 w-auto md:h-8" />
             </div>
             <div className="hidden items-center gap-6 md:flex">
               <a href="#roles" className="text-sm text-zinc-400 transition hover:text-white">Roles</a>
@@ -271,9 +271,6 @@ export default function QzinoAmbassadorProgramSite() {
 
         <section className="grid items-center gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
           <div>
-            <div className="inline-flex rounded-full border border-[#B0ED00]/20 bg-[#B0ED00]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#B0ED00]">
-              Qzino Ambassador Program
-            </div>
             <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">
               Qzino Ambassador Program - Turn your audience into <span className="text-[#B0ED00]">predictable revenue</span>.
             </h1>
