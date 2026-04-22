@@ -1,33 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {
-  ChevronRight,
-  Calculator,
-  Users,
-  Crown,
-  Shield,
-  Gift,
-  BarChart3,
-  Sparkles,
-  Wallet,
-  CheckCircle2,
-  ArrowRight,
-  Disc3,
-  Radio,
-  Target,
-  PlayCircle,
-  Trophy,
-} from "lucide-react";
 
 function money(v: number) {
   return new Intl.NumberFormat("en-US", {
@@ -73,14 +46,50 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-[28px] border border-white/10 bg-zinc-950/90 text-white ${className}`}>{children}</div>;
+}
+
+function FeatureCard({
+  title,
+  text,
+  icon,
+}: {
+  title: string;
+  text: string;
+  icon: string;
+}) {
+  return (
+    <Card className="h-full p-6">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00]/10 text-xl text-[#B0ED00]">
+        {icon}
+      </div>
+      <div className="text-xl font-semibold">{title}</div>
+      <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
+    </Card>
+  );
+}
+
+function MiniPill({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300">{children}</div>;
+}
+
 function RangeRow({
   label,
   value,
-  children,
+  min,
+  max,
+  step,
+  state,
+  setState,
 }: {
   label: string;
   value: string;
-  children: React.ReactNode;
+  min: number;
+  max: number;
+  step: number;
+  state: number[];
+  setState: (value: number[]) => void;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
@@ -88,53 +97,29 @@ function RangeRow({
         <span className="text-sm text-zinc-300">{label}</span>
         <span className="text-sm font-semibold text-[#B0ED00]">{value}</span>
       </div>
-      {children}
-    </div>
-  );
-}
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  text,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  text: string;
-}) {
-  return (
-    <Card className="h-full rounded-[28px] border border-white/10 bg-zinc-950/90 text-white shadow-none">
-      <CardHeader className="pb-3">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00]/10 text-[#B0ED00]">
-          <Icon className="h-5 w-5" />
-        </div>
-        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm leading-7 text-zinc-400">{text}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function MiniPill({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300">
-      {children}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={state[0]}
+        onChange={(e) => setState([Number(e.target.value)])}
+        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-zinc-800 accent-[#B0ED00]"
+      />
     </div>
   );
 }
 
 export default function QzinoAmbassadorProgramSite() {
   const [mode, setMode] = useState<"affiliate" | "streamer" | "hunter" | "vip">("affiliate");
-  const [email, setEmail] = useState("");
   const [openForm, setOpenForm] = useState(false);
+  const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [qzerId, setQzerId] = useState("");
   const [telegramUsername, setTelegramUsername] = useState("");
   const [discordUsername, setDiscordUsername] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [reach, setReach] = useState([250000]);
   const [ctr, setCtr] = useState([2.2]);
@@ -227,12 +212,9 @@ export default function QzinoAmbassadorProgramSite() {
 
     try {
       setIsSubmitting(true);
-
-      const response = await fetch("/api/ambassador-application", {
+      const res = await fetch("/api/ambassador-application", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           fullName,
@@ -243,21 +225,17 @@ export default function QzinoAmbassadorProgramSite() {
         }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result?.error || "Failed to submit application.");
-      }
-
-      setSubmitMessage(
-        result?.message || "Application submitted successfully."
-      );
+      if (!res.ok) throw new Error("Failed to submit application.");
+      setSubmitMessage("Application submitted successfully.");
       setEmail("");
       setFullName("");
       setQzerId("");
       setTelegramUsername("");
       setDiscordUsername("");
-      setOpenForm(false);
+      setTimeout(() => {
+        setOpenForm(false);
+        setSubmitMessage("");
+      }, 1000);
     } catch (error) {
       setSubmitMessage(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
@@ -267,7 +245,7 @@ export default function QzinoAmbassadorProgramSite() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute left-0 top-0 h-[500px] w-[500px] rounded-full bg-[#B0ED00]/8 blur-3xl" />
         <div className="absolute right-0 top-[120px] h-[420px] w-[420px] rounded-full bg-[#B0ED00]/10 blur-3xl" />
       </div>
@@ -283,27 +261,26 @@ export default function QzinoAmbassadorProgramSite() {
             <div className="hidden items-center gap-6 md:flex">
               <a href="#roles" className="text-sm text-zinc-400 transition hover:text-white">Roles</a>
               <a href="#calculator" className="text-sm text-zinc-400 transition hover:text-white">Calculator</a>
-              <a href="#discord" className="text-sm text-zinc-400 transition hover:text-white">Discord</a>
+              <a href="#community" className="text-sm text-zinc-400 transition hover:text-white">Community</a>
               <a href="#program" className="text-sm text-zinc-400 transition hover:text-white">Program</a>
               <a href="#faq" className="text-sm text-zinc-400 transition hover:text-white">FAQ</a>
             </div>
-            <a href="#calculator">
-              <Button className="rounded-xl bg-[#B0ED00] px-5 text-black hover:bg-[#c6ff22]">Join the community</Button>
+            <a href="#calculator" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 font-semibold text-black transition hover:bg-[#c6ff22]">
+              Join the community
             </a>
           </div>
         </header>
 
         <section className="grid items-center gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
           <div>
-            <Badge className="rounded-full border border-[#B0ED00]/20 bg-[#B0ED00]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#B0ED00] hover:bg-[#B0ED00]/10">
+            <div className="inline-flex rounded-full border border-[#B0ED00]/20 bg-[#B0ED00]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#B0ED00]">
               Qzino Ambassador Program
-            </Badge>
+            </div>
             <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">
               Qzino Ambassador Program - Turn your audience into <span className="text-[#B0ED00]">predictable revenue</span>.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-              This is the official Qzino Ambassador Program.
-              Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
+              This is the official Qzino Ambassador Program. Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <MiniPill>Up to 35% revenue share</MiniPill>
@@ -312,16 +289,11 @@ export default function QzinoAmbassadorProgramSite() {
               <MiniPill>No KYC</MiniPill>
             </div>
             <div className="mt-8 flex flex-wrap gap-4">
-              <a href="#calculator">
-                <Button className="rounded-xl bg-[#B0ED00] px-6 py-6 text-base font-semibold text-black hover:bg-[#c6ff22]">
-                  Explore Earnings
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
+              <a href="#calculator" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
+                Explore Earnings <span>→</span>
               </a>
-              <a href="#program">
-                <Button variant="outline" className="rounded-xl border-white/15 bg-white/5 px-6 py-6 text-base text-white hover:bg-white/10">
-                  View System
-                </Button>
+              <a href="#program" className="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-base text-white transition hover:bg-white/10">
+                View System
               </a>
             </div>
             <div className="mt-10 grid max-w-3xl grid-cols-2 gap-4 md:grid-cols-4">
@@ -332,12 +304,7 @@ export default function QzinoAmbassadorProgramSite() {
             </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-[36px] border border-[#B0ED00]/15 bg-gradient-to-br from-zinc-950 via-zinc-950 to-[#162300] p-7 shadow-[0_0_100px_rgba(176,237,0,0.08)] md:p-8"
-          >
+          <div className="relative overflow-hidden rounded-[36px] border border-[#B0ED00]/15 bg-gradient-to-br from-zinc-950 via-zinc-950 to-[#162300] p-7 shadow-[0_0_100px_rgba(176,237,0,0.08)] md:p-8">
             <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#B0ED00]/15 blur-3xl" />
             <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[#B0ED00]/10 blur-3xl" />
             <div className="relative">
@@ -374,198 +341,119 @@ export default function QzinoAmbassadorProgramSite() {
                 <Stat label="Leaderboard" value="Live" sub="inside community" />
               </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         <section id="roles" className="py-10">
-          <SectionTitle
-            eyebrow="Core Roles"
-            title="Built for the people we actually want in the program"
-            text="The structure is designed to be obvious from the first screen: creators monetize audience, hunters build networks, and VIP sourcers focus on high-value players."
-          />
+          <SectionTitle eyebrow="Core Roles" title="Built for the people we actually want in the program" text="The structure is designed to be obvious from the first screen: creators monetize audience, hunters build networks, and VIP sourcers focus on high-value players." />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <FeatureCard
-              icon={Radio}
-              title="Affiliate / Influencer"
-              text="Monetize your traffic. Turn clicks, content, and audience trust into long-term revenue instead of one-off campaign payments."
-            />
-            <FeatureCard
-              icon={PlayCircle}
-              title="Streamer"
-              text="Use live attention the right way. Bring viewers into the system, test fast, and build recurring upside around your stream traffic."
-            />
-            <FeatureCard
-              icon={Target}
-              title="Hunter"
-              text="Build your own earning network. Bring in other creators or partners and earn from everything they generate inside the system."
-            />
-            <FeatureCard
-              icon={Crown}
-              title="VIP Sourcing"
-              text="If you can bring serious players, you get paid upfront and long term. High-value players mean high-value economics."
-            />
+            <FeatureCard icon="📡" title="Affiliate / Influencer" text="Monetize your traffic. Turn clicks, content, and audience trust into long-term revenue instead of one-off campaign payments." />
+            <FeatureCard icon="▶" title="Streamer" text="Use live attention the right way. Bring viewers into the system, test fast, and build recurring upside around your stream traffic." />
+            <FeatureCard icon="🎯" title="Hunter" text="Build your own earning network. Bring in other creators or partners and earn from everything they generate inside the system." />
+            <FeatureCard icon="👑" title="VIP Sourcing" text="If you can bring serious players, you get paid upfront and long term. High-value players mean high-value economics." />
           </div>
         </section>
 
         <section id="calculator" className="py-20">
-          <SectionTitle
-            eyebrow="Earnings Simulator"
-            title="How much can you actually make?"
-            text="Adjust the numbers below and see whether this is worth your time. This block is built to help creators, streamers, and sourcers evaluate real earning potential before they apply."
-          />
+          <SectionTitle eyebrow="Earnings Simulator" title="How much can you actually make?" text="Adjust the numbers below and see whether this is worth your time. This block is built to help creators, streamers, and sourcers evaluate real earning potential before they apply." />
 
           <div className="mt-10 rounded-[32px] border border-white/10 bg-zinc-950/90 p-4 md:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00] text-black">
-                    <Calculator className="h-5 w-5" />
-                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00] text-xl text-black">📊</div>
                   <div>
                     <div className="text-2xl font-semibold text-white">Program Earnings Calculator</div>
                     <p className="mt-1 text-sm text-zinc-400">Choose the path that matches how you actually monetize: audience, streams, partner sourcing, or VIP players.</p>
                   </div>
                 </div>
               </div>
-              <Tabs value={mode} onValueChange={(v) => setMode(v as "affiliate" | "streamer" | "hunter" | "vip") }>
-                <TabsList className="h-auto rounded-2xl border border-white/10 bg-black p-1 flex flex-wrap">
-                  <TabsTrigger value="affiliate" className="rounded-xl px-4 py-2.5 text-sm text-zinc-300 data-[state=active]:bg-[#B0ED00] data-[state=active]:text-black">
-                    Creator / Affiliate
-                  </TabsTrigger>
-                  <TabsTrigger value="streamer" className="rounded-xl px-4 py-2.5 text-sm text-zinc-300 data-[state=active]:bg-[#B0ED00] data-[state=active]:text-black">
-                    Streamer
-                  </TabsTrigger>
-                  <TabsTrigger value="hunter" className="rounded-xl px-4 py-2.5 text-sm text-zinc-300 data-[state=active]:bg-[#B0ED00] data-[state=active]:text-black">
-                    Hunter
-                  </TabsTrigger>
-                  <TabsTrigger value="vip" className="rounded-xl px-4 py-2.5 text-sm text-zinc-300 data-[state=active]:bg-[#B0ED00] data-[state=active]:text-black">
-                    VIP Hunter
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-black p-1">
+                {[
+                  ["affiliate", "Creator / Affiliate"],
+                  ["streamer", "Streamer"],
+                  ["hunter", "Hunter"],
+                  ["vip", "VIP Hunter"],
+                ].map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setMode(key as typeof mode)}
+                    className={`rounded-xl px-4 py-2.5 text-sm transition ${mode === key ? "bg-[#B0ED00] text-black" : "text-zinc-300 hover:bg-white/10"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-              <Card className="rounded-[28px] border border-white/10 bg-black/30 text-white shadow-none">
-                <CardContent className="space-y-4 p-4 md:p-5">
+              <Card className="bg-black/30">
+                <div className="space-y-4 p-4 md:p-5">
                   {mode === "affiliate" && (
                     <>
-                      <RangeRow label="Monthly Reach / Traffic" value={num(reach[0])}>
-                        <Slider value={reach} onValueChange={setReach} min={10000} max={1500000} step={10000} />
-                      </RangeRow>
-                      <RangeRow label="CTR to Offer" value={pct(ctr[0])}>
-                        <Slider value={ctr} onValueChange={setCtr} min={0.5} max={10} step={0.1} />
-                      </RangeRow>
-                      <RangeRow label="Registration Rate" value={pct(regRate[0])}>
-                        <Slider value={regRate} onValueChange={setRegRate} min={2} max={40} step={1} />
-                      </RangeRow>
-                      <RangeRow label="FTD Rate" value={pct(ftdRate[0])}>
-                        <Slider value={ftdRate} onValueChange={setFtdRate} min={3} max={50} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Average Deposit" value={money(avgDeposit[0])}>
-                        <Slider value={avgDeposit} onValueChange={setAvgDeposit} min={20} max={500} step={10} />
-                      </RangeRow>
-                      <RangeRow label="Estimated NGR Rate" value={pct(ngrRate[0])}>
-                        <Slider value={ngrRate} onValueChange={setNgrRate} min={1} max={10} step={0.5} />
-                      </RangeRow>
-                      <RangeRow label="Test Period RevShare" value={pct(testRevshare[0])}>
-                        <Slider value={testRevshare} onValueChange={setTestRevshare} min={20} max={35} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Post-Review RevShare" value={pct(longRevshare[0])}>
-                        <Slider value={longRevshare} onValueChange={setLongRevshare} min={20} max={35} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Monthly Fixed / Content Support" value={money(contentFixed[0])}>
-                        <Slider value={contentFixed} onValueChange={setContentFixed} min={0} max={3000} step={50} />
-                      </RangeRow>
-                      <RangeRow label="Sub-Ambassador Monthly NGR" value={money(subAmbNgr[0])}>
-                        <Slider value={subAmbNgr} onValueChange={setSubAmbNgr} min={0} max={10000} step={100} />
-                      </RangeRow>
+                      <RangeRow label="Monthly Reach / Traffic" value={num(reach[0])} min={10000} max={1500000} step={10000} state={reach} setState={setReach} />
+                      <RangeRow label="CTR to Offer" value={pct(ctr[0])} min={0.5} max={10} step={0.1} state={ctr} setState={setCtr} />
+                      <RangeRow label="Registration Rate" value={pct(regRate[0])} min={2} max={40} step={1} state={regRate} setState={setRegRate} />
+                      <RangeRow label="FTD Rate" value={pct(ftdRate[0])} min={3} max={50} step={1} state={ftdRate} setState={setFtdRate} />
+                      <RangeRow label="Average Deposit" value={money(avgDeposit[0])} min={20} max={500} step={10} state={avgDeposit} setState={setAvgDeposit} />
+                      <RangeRow label="Estimated NGR Rate" value={pct(ngrRate[0])} min={1} max={10} step={0.5} state={ngrRate} setState={setNgrRate} />
+                      <RangeRow label="Test Period RevShare" value={pct(testRevshare[0])} min={20} max={35} step={1} state={testRevshare} setState={setTestRevshare} />
+                      <RangeRow label="Post-Review RevShare" value={pct(longRevshare[0])} min={20} max={35} step={1} state={longRevshare} setState={setLongRevshare} />
+                      <RangeRow label="Monthly Fixed / Content Support" value={money(contentFixed[0])} min={0} max={3000} step={50} state={contentFixed} setState={setContentFixed} />
+                      <RangeRow label="Sub-Ambassador Monthly NGR" value={money(subAmbNgr[0])} min={0} max={10000} step={100} state={subAmbNgr} setState={setSubAmbNgr} />
                     </>
                   )}
 
                   {mode === "streamer" && (
                     <>
-                      <RangeRow label="Average Viewers per Stream" value={num(avgViewers[0])}>
-                        <Slider value={avgViewers} onValueChange={setAvgViewers} min={50} max={5000} step={50} />
-                      </RangeRow>
-                      <RangeRow label="Number of Streams" value={num(streamsCount[0])}>
-                        <Slider value={streamsCount} onValueChange={setStreamsCount} min={1} max={10} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Click Rate from Stream" value={pct(streamClickRate[0])}>
-                        <Slider value={streamClickRate} onValueChange={setStreamClickRate} min={1} max={20} step={0.5} />
-                      </RangeRow>
-                      <RangeRow label="Registration Rate" value={pct(streamRegRate[0])}>
-                        <Slider value={streamRegRate} onValueChange={setStreamRegRate} min={5} max={40} step={1} />
-                      </RangeRow>
-                      <RangeRow label="FTD Rate" value={pct(streamFtdRate[0])}>
-                        <Slider value={streamFtdRate} onValueChange={setStreamFtdRate} min={5} max={40} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Average Deposit" value={money(streamAvgDeposit[0])}>
-                        <Slider value={streamAvgDeposit} onValueChange={setStreamAvgDeposit} min={20} max={500} step={10} />
-                      </RangeRow>
-                      <RangeRow label="Requested Fixed After Review" value={money(streamRequestedFixed[0])}>
-                        <Slider value={streamRequestedFixed} onValueChange={setStreamRequestedFixed} min={0} max={2000} step={50} />
-                      </RangeRow>
+                      <RangeRow label="Average Viewers per Stream" value={num(avgViewers[0])} min={50} max={5000} step={50} state={avgViewers} setState={setAvgViewers} />
+                      <RangeRow label="Number of Streams" value={num(streamsCount[0])} min={1} max={10} step={1} state={streamsCount} setState={setStreamsCount} />
+                      <RangeRow label="Click Rate from Stream" value={pct(streamClickRate[0])} min={1} max={20} step={0.5} state={streamClickRate} setState={setStreamClickRate} />
+                      <RangeRow label="Registration Rate" value={pct(streamRegRate[0])} min={5} max={40} step={1} state={streamRegRate} setState={setStreamRegRate} />
+                      <RangeRow label="FTD Rate" value={pct(streamFtdRate[0])} min={5} max={40} step={1} state={streamFtdRate} setState={setStreamFtdRate} />
+                      <RangeRow label="Average Deposit" value={money(streamAvgDeposit[0])} min={20} max={500} step={10} state={streamAvgDeposit} setState={setStreamAvgDeposit} />
+                      <RangeRow label="Requested Fixed After Review" value={money(streamRequestedFixed[0])} min={0} max={2000} step={50} state={streamRequestedFixed} setState={setStreamRequestedFixed} />
                     </>
                   )}
 
                   {mode === "hunter" && (
                     <>
-                      <RangeRow label="Recruited Partners" value={num(recruitedPartners[0])}>
-                        <Slider value={recruitedPartners} onValueChange={setRecruitedPartners} min={1} max={30} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Average FTD per Partner" value={num(avgFtdPerPartner[0])}>
-                        <Slider value={avgFtdPerPartner} onValueChange={setAvgFtdPerPartner} min={3} max={100} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Average Deposit per FTD" value={money(avgDepositPerPartner[0])}>
-                        <Slider value={avgDepositPerPartner} onValueChange={setAvgDepositPerPartner} min={20} max={300} step={5} />
-                      </RangeRow>
-                      <RangeRow label="Your Network Share" value={pct(hunterShare[0])}>
-                        <Slider value={hunterShare} onValueChange={setHunterShare} min={5} max={20} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Bonus per Extra FTD" value={money(bonusPerExtraFtd[0])}>
-                        <Slider value={bonusPerExtraFtd} onValueChange={setBonusPerExtraFtd} min={2} max={5} step={1} />
-                      </RangeRow>
+                      <RangeRow label="Recruited Partners" value={num(recruitedPartners[0])} min={1} max={30} step={1} state={recruitedPartners} setState={setRecruitedPartners} />
+                      <RangeRow label="Average FTD per Partner" value={num(avgFtdPerPartner[0])} min={3} max={100} step={1} state={avgFtdPerPartner} setState={setAvgFtdPerPartner} />
+                      <RangeRow label="Average Deposit per FTD" value={money(avgDepositPerPartner[0])} min={20} max={300} step={5} state={avgDepositPerPartner} setState={setAvgDepositPerPartner} />
+                      <RangeRow label="Your Network Share" value={pct(hunterShare[0])} min={5} max={20} step={1} state={hunterShare} setState={setHunterShare} />
+                      <RangeRow label="Bonus per Extra FTD" value={money(bonusPerExtraFtd[0])} min={2} max={5} step={1} state={bonusPerExtraFtd} setState={setBonusPerExtraFtd} />
                     </>
                   )}
 
                   {mode === "vip" && (
                     <>
-                      <RangeRow label="VIP Players Acquired" value={num(vipPlayers[0])}>
-                        <Slider value={vipPlayers} onValueChange={setVipPlayers} min={1} max={20} step={1} />
-                      </RangeRow>
-                      <RangeRow label="Average VIP Deposit" value={money(avgVipDeposit[0])}>
-                        <Slider value={avgVipDeposit} onValueChange={setAvgVipDeposit} min={500} max={5000} step={50} />
-                      </RangeRow>
-                      <RangeRow label="Lifetime RevShare" value={pct(vipLifetimeShare[0])}>
-                        <Slider value={vipLifetimeShare} onValueChange={setVipLifetimeShare} min={10} max={25} step={1} />
-                      </RangeRow>
-                      <RangeRow label="CPA per VIP" value={money(vipCpa[0])}>
-                        <Slider value={vipCpa} onValueChange={setVipCpa} min={50} max={250} step={10} />
-                      </RangeRow>
+                      <RangeRow label="VIP Players Acquired" value={num(vipPlayers[0])} min={1} max={20} step={1} state={vipPlayers} setState={setVipPlayers} />
+                      <RangeRow label="Average VIP Deposit" value={money(avgVipDeposit[0])} min={500} max={5000} step={50} state={avgVipDeposit} setState={setAvgVipDeposit} />
+                      <RangeRow label="Lifetime RevShare" value={pct(vipLifetimeShare[0])} min={10} max={25} step={1} state={vipLifetimeShare} setState={setVipLifetimeShare} />
+                      <RangeRow label="CPA per VIP" value={money(vipCpa[0])} min={50} max={250} step={10} state={vipCpa} setState={setVipCpa} />
                     </>
                   )}
-                </CardContent>
+                </div>
               </Card>
 
               <div className="space-y-6">
-                <Card className="rounded-[28px] border-none bg-[#B0ED00] text-black shadow-[0_0_80px_rgba(176,237,0,0.14)]">
-                  <CardContent className="p-6 md:p-8">
-                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">Estimated Outcome</div>
-                    <div className="mt-4 text-5xl font-bold md:text-6xl">
-                      {mode === "affiliate" && money(affiliate.longTotal)}
-                      {mode === "streamer" && money(streamer.longTotal)}
-                      {mode === "hunter" && money(hunter.total)}
-                      {mode === "vip" && money(vip.total)}
-                    </div>
-                    <p className="mt-4 max-w-md text-sm leading-7 text-black/70">
-                      {mode === "affiliate" && `Test period: ${money(affiliate.testTotal)} • Post-review: ${money(affiliate.longTotal)} • ${affiliate.bestFit}`}
-                      {mode === "streamer" && `Test streams: ${money(streamer.testRevIncome)} • Post-review scenario: ${money(streamer.longTotal)} • ${streamer.verdict}`}
-                      {mode === "hunter" && `${hunter.fit} • Network-based upside with extra FTD bonus on top.`}
-                      {mode === "vip" && `${vip.fit} • CPA + lifetime revshare combined.`}
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-[28px] bg-[#B0ED00] p-6 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-8">
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">Estimated Outcome</div>
+                  <div className="mt-4 text-5xl font-bold md:text-6xl">
+                    {mode === "affiliate" && money(affiliate.longTotal)}
+                    {mode === "streamer" && money(streamer.longTotal)}
+                    {mode === "hunter" && money(hunter.total)}
+                    {mode === "vip" && money(vip.total)}
+                  </div>
+                  <p className="mt-4 max-w-md text-sm leading-7 text-black/70">
+                    {mode === "affiliate" && `Test period: ${money(affiliate.testTotal)} - Post-review: ${money(affiliate.longTotal)} - ${affiliate.bestFit}`}
+                    {mode === "streamer" && `Test streams: ${money(streamer.testRevIncome)} - Post-review scenario: ${money(streamer.longTotal)} - ${streamer.verdict}`}
+                    {mode === "hunter" && `${hunter.fit} - Network-based upside with extra FTD bonus on top.`}
+                    {mode === "vip" && `${vip.fit} - CPA + lifetime revshare combined.`}
+                  </p>
+                </div>
 
                 {mode === "affiliate" && (
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -609,196 +497,114 @@ export default function QzinoAmbassadorProgramSite() {
                   </div>
                 )}
 
-                <div className="rounded-[28px] border border-white/10 bg-zinc-950/90 text-white shadow-none p-6 md:p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                  <div className="max-w-lg">
-                    <div className="text-lg font-semibold text-white">Join the Ambassador Community</div>
-                    <p className="mt-2 text-sm leading-7 text-zinc-400">
-                      To enter the program, you need to complete a short application. It takes less than 1 minute and helps us filter serious participants.
-                    </p>
+                <div className="rounded-[28px] border border-white/10 bg-zinc-950/90 p-6 text-white md:p-7">
+                  <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                    <div className="max-w-lg">
+                      <div className="text-lg font-semibold text-white">Join the Ambassador Community</div>
+                      <p className="mt-2 text-sm leading-7 text-zinc-400">
+                        To enter the program, you need to complete a short application. It takes less than 1 minute and helps us filter serious participants.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setOpenForm(true)}
+                      className="rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]"
+                    >
+                      Apply Now
+                    </button>
                   </div>
-
-                  <Dialog open={openForm} onOpenChange={setOpenForm}>
-                    <DialogTrigger asChild>
-                      <Button className="rounded-xl bg-[#B0ED00] px-6 py-6 text-base font-semibold text-black hover:bg-[#c6ff22]">
-                        Apply Now
-                      </Button>
-                    </DialogTrigger>
-
-                    <DialogContent className="max-w-lg rounded-2xl border border-white/10 bg-black text-white">
-                      <form onSubmit={handleApplicationSubmit}>
-                        <div className="text-lg font-semibold">Application form</div>
-                        <p className="text-sm text-zinc-400">All fields are required</p>
-
-                        <div className="mt-4 grid gap-4">
-                          <Input required value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email" />
-                          <Input required value={fullName} onChange={(e)=>setFullName(e.target.value)} placeholder="Full Name" />
-                          <Input required value={qzerId} onChange={(e)=>setQzerId(e.target.value)} placeholder="QzerID" />
-                          <p className="text-xs text-zinc-500">Find your Qzer ID in the dashboard. Register first if needed.</p>
-                          <Input required value={telegramUsername} onChange={(e)=>setTelegramUsername(e.target.value)} placeholder="Telegram (@username)" />
-                          <Input required value={discordUsername} onChange={(e)=>setDiscordUsername(e.target.value)} placeholder="Discord username" />
-                        </div>
-
-                        {submitMessage ? (
-                          <p className="mt-4 text-sm text-zinc-300">{submitMessage}</p>
-                        ) : null}
-
-                        <Button type="submit" disabled={isSubmitting} className="mt-5 w-full rounded-xl bg-[#B0ED00] text-black hover:bg-[#c6ff22] disabled:opacity-60">
-                          {isSubmitting ? "Submitting..." : "Submit Application"}
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="discord" className="py-10">
-          <SectionTitle
-            eyebrow="Community Experience"
-            title="Everything that matters happens inside the community"
-            text="The site gets people interested. The community is the real operating system of the program - where onboarding, communication, tasks, tracking, and progression happen every day."
-          />
-
+        <section id="community" className="py-10">
+          <SectionTitle eyebrow="Community Experience" title="Everything that matters happens inside the community" text="The site gets people interested. The community is the real operating system of the program - where onboarding, communication, tasks, tracking, and progression happen every day." />
           <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="grid gap-5 md:grid-cols-2">
-              <FeatureCard
-                icon={Disc3}
-                title="Role-based channels"
-                text="Different participant types get access to the channels, materials, and conversations that match how they earn."
-              />
-              <FeatureCard
-                icon={BarChart3}
-                title="Tracking and visibility"
-                text="Performance, roles, and progression are tied to the community-driven system instead of scattered communication."
-              />
-              <FeatureCard
-                icon={Trophy}
-                title="Live leaderboard"
-                text="Competition and status are visible inside the hub, helping the best participants stay engaged and push harder."
-              />
-              <FeatureCard
-                icon={Users}
-                title="Direct access to team"
-                text="Stronger candidates don't wait in generic support flows. They move directly into review, guidance, and faster scaling."
-              />
+              <FeatureCard icon="💿" title="Role-based channels" text="Different participant types get access to the channels, materials, and conversations that match how they earn." />
+              <FeatureCard icon="📈" title="Tracking and visibility" text="Performance, roles, and progression are tied to the community-driven system instead of scattered communication." />
+              <FeatureCard icon="🏆" title="Live leaderboard" text="Competition and status are visible inside the hub, helping the best participants stay engaged and push harder." />
+              <FeatureCard icon="👥" title="Direct access to team" text="Stronger candidates don’t wait in generic support flows. They move directly into review, guidance, and faster scaling." />
             </div>
 
-            <Card className="rounded-[30px] border border-white/10 bg-zinc-950 text-white shadow-none">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold">Inside the community</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-zinc-400">
-                <div className="rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7">
-                  This is not just a chat. It is the main environment where people enter the program, get sorted by role, receive instructions, and grow into stronger monetization paths.
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Stat label="Onboarding" value="Inside community" />
-                  <Stat label="Task Flow" value="Role-based" />
-                  <Stat label="Leaderboard" value="Live" />
-                  <Stat label="Access" value="For contributors" />
-                </div>
-              </CardContent>
+            <Card className="rounded-[30px] p-6">
+              <div className="text-2xl font-semibold">Inside the community</div>
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
+                This is not just a chat. It is the main environment where people enter the program, get sorted by role, receive instructions, and grow into stronger monetization paths.
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <Stat label="Onboarding" value="Inside community" />
+                <Stat label="Task Flow" value="Role-based" />
+                <Stat label="Leaderboard" value="Live" />
+                <Stat label="Access" value="For contributors" />
+              </div>
             </Card>
           </div>
         </section>
 
         <section id="program" className="py-10">
-          <SectionTitle
-            eyebrow="Program Structure"
-            title="Simple enough to enter, strong enough to keep top performers"
-            text="The structure is designed to maximize trial, filter weak candidates fast, and move the right people into long-term terms based on performance."
-          />
+          <SectionTitle eyebrow="Program Structure" title="Simple enough to enter, strong enough to keep top performers" text="The structure is designed to maximize trial, filter weak candidates fast, and move the right people into long-term terms based on performance." />
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
-            <Card className="rounded-[30px] border border-white/10 bg-zinc-950 text-white shadow-none">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-2xl"><Sparkles className="h-5 w-5 text-[#B0ED00]" /> Test Period</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-zinc-400">
-                <div className="rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7">
-                  Start with the best conditions. No overloaded onboarding. No long warm-up. You enter, test, and see quickly whether the system fits you.
-                </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Stat label="Offer" value="Up to 35% NGR" />
-                  <Stat label="Duration" value="15-30 days" />
-                  <Stat label="Goal" value="Prove Fit" />
-                </div>
-              </CardContent>
+            <Card className="rounded-[30px] p-6">
+              <div className="flex items-center gap-3 text-2xl font-semibold"><span className="text-[#B0ED00]">✨</span> Test Period</div>
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
+                Start with the best conditions. No overloaded onboarding. No long warm-up. You enter, test, and see quickly whether the system fits you.
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <Stat label="Offer" value="Up to 35% NGR" />
+                <Stat label="Duration" value="15-30 days" />
+                <Stat label="Goal" value="Prove Fit" />
+              </div>
             </Card>
 
-            <Card className="rounded-[30px] border border-white/10 bg-zinc-950 text-white shadow-none">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-2xl"><BarChart3 className="h-5 w-5 text-[#B0ED00]" /> Performance Review</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-zinc-400">
-                <div className="rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7">
-                  We do not guess. We look at numbers. If you perform, you unlock better conditions, stronger support, and more room to scale.
-                </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Stat label="Review Based On" value="FTD + GEO" />
-                  <Stat label="Output" value="Personal Terms" />
-                  <Stat label="Outcome" value="Scale" />
-                </div>
-              </CardContent>
+            <Card className="rounded-[30px] p-6">
+              <div className="flex items-center gap-3 text-2xl font-semibold"><span className="text-[#B0ED00]">📈</span> Performance Review</div>
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
+                We do not guess. We look at numbers. If you perform, you unlock better conditions, stronger support, and more room to scale.
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <Stat label="Review Based On" value="FTD + GEO" />
+                <Stat label="Output" value="Personal Terms" />
+                <Stat label="Outcome" value="Scale" />
+              </div>
             </Card>
           </div>
 
           <div className="mt-5 grid gap-5 xl:grid-cols-3">
-            
-            <Card className="rounded-[28px] border border-[#B0ED00]/20 bg-[#B0ED00]/5 text-white shadow-none xl:col-span-3">
-              <CardContent className="p-6 md:p-7">
-                <div className="text-sm font-semibold text-[#B0ED00]">Simple progression</div>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                  There is a progression system in the program, but you do not need to learn a complicated structure.
-                  In practice it works very simply: you join, test the program, show results, and unlock better conditions.
-                </p>
-                <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 1</div>
-                    <div className="mt-2 text-base font-semibold text-white">Enter</div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-400">Start with test conditions and get into the system.</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 2</div>
-                    <div className="mt-2 text-base font-semibold text-white">Perform</div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-400">Your results show the quality of your traffic and activity.</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 3</div>
-                    <div className="mt-2 text-base font-semibold text-white">Scale</div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-400">Better performance unlocks better terms, bonuses, and deeper access.</div>
-                  </div>
+            <Card className="border-[#B0ED00]/20 bg-[#B0ED00]/5 p-6 md:p-7 xl:col-span-3">
+              <div className="text-sm font-semibold text-[#B0ED00]">Simple progression</div>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+                There is a progression system in the program, but you do not need to learn a complicated structure. In practice it works very simply: you join, test the program, show results, and unlock better conditions.
+              </p>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 1</div>
+                  <div className="mt-2 text-base font-semibold text-white">Enter</div>
+                  <div className="mt-2 text-sm leading-6 text-zinc-400">Start with test conditions and get into the system.</div>
                 </div>
-                <p className="mt-4 text-xs leading-6 text-zinc-500">
-                  In other words: the system exists, but from your side it is just simple performance-based growth.
-                </p>
-              </CardContent>
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 2</div>
+                  <div className="mt-2 text-base font-semibold text-white">Perform</div>
+                  <div className="mt-2 text-sm leading-6 text-zinc-400">Your results show the quality of your traffic and activity.</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 3</div>
+                  <div className="mt-2 text-base font-semibold text-white">Scale</div>
+                  <div className="mt-2 text-sm leading-6 text-zinc-400">Better performance unlocks better terms, bonuses, and deeper access.</div>
+                </div>
+              </div>
+              <p className="mt-4 text-xs leading-6 text-zinc-500">In other words: the system exists, but from your side it is just simple performance-based growth.</p>
             </Card>
-            <FeatureCard
-              icon={Wallet}
-              title="Bonus Stack"
-              text="Sub-ambassador revenue, farming upside, FTD overperformance bonuses, and leaderboard-based motivation keep the economics attractive after entry."
-            />
-            <FeatureCard
-              icon={Shield}
-              title="Strict Anti-Fraud"
-              text="The system is built to reject fake stats, weak traffic, and abusive behavior early. Serious participants stay, weak traffic gets filtered out."
-            />
-            <FeatureCard
-              icon={CheckCircle2}
-              title="Real Retention Logic"
-              text="The goal is not just to get people in. The goal is to give strong participants reasons to stay, perform, and grow inside the system."
-            />
+            <FeatureCard icon="💰" title="Bonus Stack" text="Sub-ambassador revenue, farming upside, FTD overperformance bonuses, and leaderboard-based motivation keep the economics attractive after entry." />
+            <FeatureCard icon="🛡" title="Strict Anti-Fraud" text="The system is built to reject fake stats, weak traffic, and abusive behavior early. Serious participants stay, weak traffic gets filtered out." />
+            <FeatureCard icon="✔" title="Real Retention Logic" text="The goal is not just to get people in. The goal is to give strong participants reasons to stay, perform, and grow inside the system." />
           </div>
         </section>
 
         <section className="py-20">
-          <SectionTitle
-            eyebrow="Flow"
-            title="How serious people move through the program"
-            text="The journey is simple on the surface and selective underneath. That makes the program easier to enter, but harder to abuse."
-          />
+          <SectionTitle eyebrow="Flow" title="How serious people move through the program" text="The journey is simple on the surface and selective underneath. That makes the program easier to enter, but harder to abuse." />
           <div className="mt-10 grid gap-5 md:grid-cols-4">
             {[
               ["01", "Apply", "Share your channels, traffic, audience, or sourcing angle."],
@@ -806,50 +612,29 @@ export default function QzinoAmbassadorProgramSite() {
               ["03", "Prove Results", "Drive FTD, players, or partner-level outcomes in the system."],
               ["04", "Scale", "Unlock stronger terms and deeper opportunities based on performance."],
             ].map(([step, title, text]) => (
-              <Card key={step} className="rounded-[28px] border border-white/10 bg-zinc-950 text-white shadow-none">
-                <CardContent className="p-6">
-                  <div className="text-sm font-semibold text-[#B0ED00]">{step}</div>
-                  <div className="mt-3 text-2xl font-semibold text-white">{title}</div>
-                  <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
-                </CardContent>
+              <Card key={step} className="p-6">
+                <div className="text-sm font-semibold text-[#B0ED00]">{step}</div>
+                <div className="mt-3 text-2xl font-semibold text-white">{title}</div>
+                <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
               </Card>
             ))}
           </div>
         </section>
 
         <section id="faq" className="py-10">
-          <SectionTitle
-            eyebrow="FAQ"
-            title="The main objections answered directly"
-            text="The site should remove hesitation fast without turning into an overloaded document."
-          />
+          <SectionTitle eyebrow="FAQ" title="The main objections answered directly" text="The site should remove hesitation fast without turning into an overloaded document." />
           <div className="mt-10 rounded-[30px] border border-white/10 bg-zinc-950 p-4 md:p-6">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1" className="border-white/10">
-                <AccordionTrigger className="text-left text-white hover:no-underline">Who is this built for?</AccordionTrigger>
-                <AccordionContent className="text-sm leading-7 text-zinc-400">
-                  Influencers, streamers, affiliates, hunters, and VIP sourcers who already have traffic, audience, or the right network to monetize.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2" className="border-white/10">
-                <AccordionTrigger className="text-left text-white hover:no-underline">Why should creators care?</AccordionTrigger>
-                <AccordionContent className="text-sm leading-7 text-zinc-400">
-                  Because this is built around predictable revenue, not just random one-off campaign fees. Strong creators can grow inside the system instead of restarting every month.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3" className="border-white/10">
-                <AccordionTrigger className="text-left text-white hover:no-underline">What happens after the test period?</AccordionTrigger>
-                <AccordionContent className="text-sm leading-7 text-zinc-400">
-                  The team reviews actual performance and offers stronger long-term conditions based on your real numbers.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4" className="border-white/10">
-                <AccordionTrigger className="text-left text-white hover:no-underline">How strict is fraud policy?</AccordionTrigger>
-                <AccordionContent className="text-sm leading-7 text-zinc-400">
-                  Very strict. Fake stats, abusive behavior, and low-quality schemes should be treated as immediate disqualification and payout block.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            {[
+              ["Who is this built for?", "Influencers, streamers, affiliates, hunters, and VIP sourcers who already have traffic, audience, or the right network to monetize."],
+              ["Why should creators care?", "Because this is built around predictable revenue, not just random one-off campaign fees. Strong creators can grow inside the system instead of restarting every month."],
+              ["What happens after the test period?", "The team reviews actual performance and offers stronger long-term conditions based on your real numbers."],
+              ["How strict is fraud policy?", "Very strict. Fake stats, abusive behavior, and low-quality schemes should be treated as immediate disqualification and payout block."],
+            ].map(([title, text]) => (
+              <details key={title} className="border-b border-white/10 py-4 last:border-0">
+                <summary className="cursor-pointer list-none text-left text-white">{title}</summary>
+                <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
+              </details>
+            ))}
           </div>
         </section>
 
@@ -864,20 +649,48 @@ export default function QzinoAmbassadorProgramSite() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
-                <a href="#calculator">
-                <Button className="rounded-xl bg-[#B0ED00] px-6 py-6 text-base font-semibold text-black hover:bg-[#c6ff22]">
-                  Join the community
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </a>
-                <Button variant="outline" className="rounded-xl border-white/15 bg-white/5 px-6 py-6 text-base text-white hover:bg-white/10">
+                <a href="#calculator" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
+                  Join the community <span>→</span>
+                </a>
+                <button type="button" className="rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-base text-white transition hover:bg-white/10">
                   Contact Program Team
-                </Button>
+                </button>
               </div>
             </div>
           </div>
         </section>
       </div>
+
+      {openForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-black p-6 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-lg font-semibold">Application form</div>
+                <p className="text-sm text-zinc-400">All fields are required</p>
+              </div>
+              <button type="button" onClick={() => setOpenForm(false)} className="text-zinc-400 transition hover:text-white">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleApplicationSubmit} className="mt-4 space-y-4">
+              <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={qzerId} onChange={(e) => setQzerId(e.target.value)} placeholder="QzerID" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <p className="text-xs text-zinc-500">Find Qzer ID in dashboard. Register first if needed.</p>
+              <input required value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="Telegram (@username)" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={discordUsername} onChange={(e) => setDiscordUsername(e.target.value)} placeholder="Discord username" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+
+              {submitMessage ? <p className="text-sm text-zinc-300">{submitMessage}</p> : null}
+
+              <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[#B0ED00] px-5 py-3 font-semibold text-black transition hover:bg-[#c6ff22] disabled:opacity-60">
+                {isSubmitting ? "Submitting..." : "Submit Application"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
