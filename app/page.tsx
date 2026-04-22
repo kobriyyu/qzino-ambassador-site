@@ -36,12 +36,54 @@ function SectionTitle({
   );
 }
 
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Stat({
+  label,
+  value,
+  sub,
+  variant = "default",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  variant?: "default" | "hero";
+}) {
+  const isHero = variant === "hero";
+
   return (
-    <div className="flex h-full min-h-[9.5rem] flex-col rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm md:min-h-[11.5rem]">
-      <div className="min-h-[2.75rem] text-[10px] uppercase tracking-[0.18em] text-zinc-500 md:min-h-[3.25rem]">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-white md:text-[2.625rem]">{value}</div>
-      {sub ? <div className="mt-auto pt-3 text-xs text-zinc-500 md:text-sm">{sub}</div> : null}
+    <div
+      className={`min-w-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm ${
+        isHero
+          ? "flex h-full min-h-[10.5rem] flex-col p-5 md:min-h-[12rem] md:p-6"
+          : "flex h-full min-h-[9.5rem] flex-col p-4 md:min-h-[11.5rem]"
+      }`}
+    >
+      <div
+        className={`min-w-0 uppercase text-zinc-500 ${
+          isHero
+            ? "min-h-[2.8rem] text-[11px] tracking-[0.22em] md:min-h-[3.2rem] md:text-xs"
+            : "min-h-[2.75rem] text-[10px] tracking-[0.18em] md:min-h-[3.25rem]"
+        }`}
+      >
+        {label}
+      </div>
+      <div
+        className={`min-w-0 text-white ${
+          isHero
+            ? "mt-3 text-[2rem] leading-[1.02] font-semibold tracking-tight text-balance md:text-[3rem]"
+            : "mt-2 text-2xl leading-tight font-semibold md:text-[2.625rem]"
+        }`}
+      >
+        {value}
+      </div>
+      {sub ? (
+        <div
+          className={`mt-auto min-w-0 text-zinc-500 ${
+            isHero ? "pt-4 text-sm leading-snug md:text-[1.05rem]" : "pt-3 text-xs md:text-sm"
+          }`}
+        >
+          {sub}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -289,11 +331,11 @@ export default function QzinoAmbassadorProgramSite() {
                 View System
               </a>
             </div>
-            <div className="mt-10 grid max-w-3xl grid-cols-2 gap-4 md:grid-cols-4">
-              <Stat label="Top Offer" value="Up to 35%" sub="test period" />
-              <Stat label="VIP Model" value="CPA + Lifetime" sub="high-value players" />
-              <Stat label="Network Layer" value="+5%" sub="sub-ambassadors" />
-              <Stat label="Core Platform" value="Community" sub="for ambassadors" />
+            <div className="mt-10 grid max-w-6xl grid-cols-2 items-stretch gap-4 md:grid-cols-4">
+              <Stat variant="hero" label="Top Offer" value="Up to 35%" sub="test period" />
+              <Stat variant="hero" label="VIP Model" value="CPA + Lifetime" sub="high-value players" />
+              <Stat variant="hero" label="Network Layer" value="+5%" sub="sub-ambassadors" />
+              <Stat variant="hero" label="Core Platform" value="Community" sub="for ambassadors" />
             </div>
           </div>
 
@@ -328,10 +370,10 @@ export default function QzinoAmbassadorProgramSite() {
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <Stat label="Creators" value="$500-$2k" sub="avg active range" />
-                <Stat label="Top Performers" value="$2k-$10k" sub="inside the system" />
-                <Stat label="Leaderboard" value="Live" sub="inside community" />
+              <div className="mt-6 grid items-stretch gap-4 sm:grid-cols-3">
+                <Stat variant="hero" label="Creators" value="$500-$2k" sub="avg active range" />
+                <Stat variant="hero" label="Top Performers" value="$2k-$10k" sub="inside the system" />
+                <Stat variant="hero" label="Leaderboard" value="Live" sub="inside community" />
               </div>
             </div>
           </div>
