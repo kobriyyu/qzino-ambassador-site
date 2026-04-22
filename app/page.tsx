@@ -249,7 +249,9 @@ export default function QzinoAmbassadorProgramSite() {
         throw new Error(result?.error || "Failed to submit application.");
       }
 
-      setSubmitMessage("Application submitted successfully.");
+      setSubmitMessage(
+        result?.message || "Application submitted successfully."
+      );
       setEmail("");
       setFullName("");
       setQzerId("");
@@ -274,7 +276,9 @@ export default function QzinoAmbassadorProgramSite() {
         <header className="sticky top-4 z-20 rounded-[24px] border border-white/10 bg-zinc-950/80 px-5 py-4 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="Qzino" className="h-8 w-auto" />
+              <div className="rounded-xl border border-[#B0ED00]/30 bg-[#B0ED00]/10 px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">
+                Qzino
+              </div>
             </div>
             <div className="hidden items-center gap-6 md:flex">
               <a href="#roles" className="text-sm text-zinc-400 transition hover:text-white">Roles</a>
@@ -629,7 +633,7 @@ export default function QzinoAmbassadorProgramSite() {
                           <Input required value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email" />
                           <Input required value={fullName} onChange={(e)=>setFullName(e.target.value)} placeholder="Full Name" />
                           <Input required value={qzerId} onChange={(e)=>setQzerId(e.target.value)} placeholder="QzerID" />
-                          <p className="text-xs text-zinc-500">⚠️ Find Qzer ID in dashboard. Register first if needed.</p>
+                          <p className="text-xs text-zinc-500">Find your Qzer ID in the dashboard. Register first if needed.</p>
                           <Input required value={telegramUsername} onChange={(e)=>setTelegramUsername(e.target.value)} placeholder="Telegram (@username)" />
                           <Input required value={discordUsername} onChange={(e)=>setDiscordUsername(e.target.value)} placeholder="Discord username" />
                         </div>
