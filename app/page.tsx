@@ -1,6 +1,21 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import {
+  Activity,
+  BadgeDollarSign,
+  BarChart3,
+  ClipboardCheck,
+  Crown,
+  Disc3,
+  MonitorPlay,
+  Sparkles,
+  ShieldCheck,
+  Target,
+  Trophy,
+  Users,
+  Wifi,
+} from "lucide-react";
 
 function money(v: number) {
   return new Intl.NumberFormat("en-US", {
@@ -28,10 +43,10 @@ function SectionTitle({
   text?: string;
 }) {
   return (
-    <div className="max-w-3xl">
-      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#B0ED00]">{eyebrow}</div>
-      <h2 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl">{title}</h2>
-      {text ? <p className="mt-4 text-base leading-8 text-zinc-400 md:text-lg">{text}</p> : null}
+    <div className="max-w-4xl">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#B0ED00]">{eyebrow}</div>
+      <h2 className="mt-4 max-w-4xl text-3xl font-semibold tracking-[-0.04em] text-white md:text-5xl">{title}</h2>
+      {text ? <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-400 md:text-lg">{text}</p> : null}
     </div>
   );
 }
@@ -45,22 +60,38 @@ function Stat({
   label: string;
   value: string;
   sub?: string;
-  variant?: "default" | "hero";
+  variant?: "default" | "hero" | "compact" | "results" | "program";
 }) {
   const isHero = variant === "hero";
+  const isCompact = variant === "compact";
+  const isResults = variant === "results";
+  const isProgram = variant === "program";
+  const keepValueOnOneLine = isHero && /[$+0-9]/.test(value) && !value.includes("CPA");
 
   return (
     <div
       className={`min-w-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm ${
         isHero
-          ? "flex h-full min-h-[10.5rem] flex-col p-5 md:min-h-[12rem] md:p-6"
+          ? "flex h-full min-h-[8.5rem] flex-col p-4 md:min-h-[9.5rem] md:p-5"
+          : isCompact
+            ? "flex h-full min-h-[8.25rem] flex-col p-4 md:min-h-[9rem] md:p-5"
+            : isResults
+              ? "flex h-full min-h-[7.5rem] flex-col p-4 md:min-h-[8.5rem] md:p-5"
+              : isProgram
+                ? "flex h-full min-h-[7.75rem] flex-col p-4 md:min-h-[9rem] md:p-5"
           : "flex h-full min-h-[9.5rem] flex-col p-4 md:min-h-[11.5rem]"
       }`}
     >
       <div
         className={`min-w-0 uppercase text-zinc-500 ${
           isHero
-            ? "min-h-[2.8rem] text-[11px] tracking-[0.22em] md:min-h-[3.2rem] md:text-xs"
+            ? "min-h-[2rem] text-[9px] leading-snug tracking-[0.16em] md:min-h-[2.25rem] md:text-[10px]"
+            : isCompact
+              ? "min-h-[1.6rem] text-[9px] leading-snug tracking-[0.18em] md:min-h-[1.9rem] md:text-[10px]"
+              : isResults
+                ? "min-h-[1.4rem] text-[9px] leading-snug tracking-[0.16em] md:min-h-[1.6rem] md:text-[10px]"
+                : isProgram
+                  ? "min-h-[1.5rem] text-[9px] leading-snug tracking-[0.16em] md:min-h-[1.75rem] md:text-[10px]"
             : "min-h-[2.75rem] text-[10px] tracking-[0.18em] md:min-h-[3.25rem]"
         }`}
       >
@@ -69,7 +100,15 @@ function Stat({
       <div
         className={`min-w-0 text-white ${
           isHero
-            ? "mt-3 text-[2rem] leading-[1.02] font-semibold tracking-tight text-balance md:text-[3rem]"
+            ? `mt-2 max-w-full text-[0.95rem] leading-[1.05] font-semibold tracking-tight sm:text-[1.05rem] lg:text-[1.2rem] xl:text-[1.35rem] ${
+                keepValueOnOneLine ? "whitespace-nowrap" : "whitespace-normal break-words"
+              }`
+            : isCompact
+              ? "mt-2 max-w-full text-[1.35rem] leading-[1.02] font-semibold tracking-tight whitespace-normal break-words md:text-[1.85rem]"
+              : isResults
+                ? "mt-2 max-w-full text-[1.5rem] leading-none font-semibold tracking-tight whitespace-normal break-words md:text-[2rem]"
+                : isProgram
+                  ? "mt-2 max-w-full text-[1.05rem] leading-[1.05] font-semibold tracking-tight whitespace-normal break-words md:text-[1.4rem]"
             : "mt-2 text-2xl leading-tight font-semibold md:text-[2.625rem]"
         }`}
       >
@@ -78,7 +117,13 @@ function Stat({
       {sub ? (
         <div
           className={`mt-auto min-w-0 text-zinc-500 ${
-            isHero ? "pt-4 text-sm leading-snug md:text-[1.05rem]" : "pt-3 text-xs md:text-sm"
+            isHero ? "pt-3 text-xs leading-snug md:text-sm" : "pt-3 text-xs md:text-sm"
+          } ${
+            isCompact ? "leading-snug md:text-[0.95rem]" : ""
+          } ${
+            isResults ? "leading-snug" : ""
+          } ${
+            isProgram ? "leading-snug md:text-[0.95rem]" : ""
           }`}
         >
           {sub}
@@ -89,7 +134,13 @@ function Stat({
 }
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-[28px] border border-white/10 bg-zinc-950/90 text-white ${className}`}>{children}</div>;
+  return (
+    <div
+      className={`rounded-[28px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(24,24,27,0.94),rgba(10,10,10,0.92))] text-white shadow-[0_20px_60px_rgba(0,0,0,0.28)] ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 function FeatureCard({
@@ -99,21 +150,21 @@ function FeatureCard({
 }: {
   title: string;
   text: string;
-  icon: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <Card className="h-full p-6">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00]/10 text-xl text-[#B0ED00]">
+    <Card className="h-full p-6 md:p-7">
+      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl border border-[#B0ED00]/10 bg-[#B0ED00]/8 text-[#B0ED00]">
         {icon}
       </div>
-      <div className="text-xl font-semibold">{title}</div>
+      <div className="text-xl font-semibold tracking-tight">{title}</div>
       <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
     </Card>
   );
 }
 
 function MiniPill({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300">{children}</div>;
+  return <div className="rounded-full border border-white/10 bg-white/[0.045] px-3.5 py-2 text-[11px] tracking-[0.02em] text-zinc-300">{children}</div>;
 }
 
 function RangeRow({
@@ -134,7 +185,7 @@ function RangeRow({
   setState: (value: number[]) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-300">{label}</span>
         <span className="text-sm font-semibold text-[#B0ED00]">{value}</span>
@@ -288,12 +339,13 @@ export default function QzinoAmbassadorProgramSite() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute left-0 top-0 h-[500px] w-[500px] rounded-full bg-[#B0ED00]/8 blur-3xl" />
-        <div className="absolute right-0 top-[120px] h-[420px] w-[420px] rounded-full bg-[#B0ED00]/10 blur-3xl" />
+        <div className="absolute left-0 top-0 h-[520px] w-[520px] rounded-full bg-[#B0ED00]/7 blur-3xl" />
+        <div className="absolute right-0 top-[120px] h-[420px] w-[420px] rounded-full bg-[#B0ED00]/9 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(176,237,0,0.03),transparent)]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-8 lg:px-10">
-        <header className="sticky top-4 z-20 rounded-[24px] border border-white/10 bg-zinc-950/80 px-5 py-4 backdrop-blur-xl">
+        <header className="sticky top-4 z-20 rounded-[24px] border border-white/10 bg-zinc-950/75 px-5 py-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <img src="/logo.png" alt="Qzino" className="h-7 w-auto md:h-8" />
@@ -305,15 +357,15 @@ export default function QzinoAmbassadorProgramSite() {
               <a href="#program" className="text-sm text-zinc-400 transition hover:text-white">Program</a>
               <a href="#faq" className="text-sm text-zinc-400 transition hover:text-white">FAQ</a>
             </div>
-            <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 font-semibold text-black transition hover:bg-[#c6ff22]">
+            <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[#c6ff22]">
               Join the community
             </a>
           </div>
         </header>
 
-        <section className="grid items-center gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+        <section className="grid items-center gap-12 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24">
           <div>
-            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">Qzino Ambassador Program</h1>
+            <h1 className="mt-6 max-w-5xl text-5xl font-semibold leading-[0.92] tracking-[-0.05em] md:text-7xl">Qzino Ambassador Program</h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
               Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
             </p>
@@ -324,14 +376,20 @@ export default function QzinoAmbassadorProgramSite() {
               <MiniPill>No KYC</MiniPill>
             </div>
             <div className="mt-8 flex flex-wrap gap-4">
-              <a href="#calculator" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
-                Explore Earnings <span>→</span>
+              <a
+                href="#calculator"
+                className="inline-flex min-h-[3.5rem] items-center justify-center gap-3 rounded-2xl bg-[#B0ED00] px-7 py-3 text-base font-semibold tracking-tight text-black shadow-[0_10px_30px_rgba(176,237,0,0.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#c6ff22] hover:shadow-[0_16px_40px_rgba(176,237,0,0.24)]"
+              >
+                Explore Earnings <span className="text-xl leading-none">→</span>
               </a>
-              <a href="#program" className="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-base text-white transition hover:bg-white/10">
+              <a
+                href="#program"
+                className="inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-medium tracking-tight text-white transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.06]"
+              >
                 View System
               </a>
             </div>
-            <div className="mt-10 grid max-w-6xl grid-cols-2 items-stretch gap-4 md:grid-cols-4">
+            <div className="mt-8 grid max-w-5xl grid-cols-2 items-stretch gap-3 2xl:grid-cols-4">
               <Stat variant="hero" label="Top Offer" value="Up to 35%" sub="test period" />
               <Stat variant="hero" label="VIP Model" value="CPA + Lifetime" sub="high-value players" />
               <Stat variant="hero" label="Network Layer" value="+5%" sub="sub-ambassadors" />
@@ -356,21 +414,21 @@ export default function QzinoAmbassadorProgramSite() {
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
                   <div className="text-sm font-medium text-zinc-400">Best Entry Conditions</div>
-                  <div className="mt-3 text-4xl font-bold text-[#B0ED00]">Up to 35% NGR</div>
+                  <div className="mt-3 text-3xl font-semibold tracking-tight text-[#B0ED00] md:text-4xl">Up to 35% NGR</div>
                   <p className="mt-3 text-sm leading-7 text-zinc-400">
                     Start with strong terms so you can test the system fast and see real upside before committing long term.
                   </p>
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
                   <div className="text-sm font-medium text-zinc-400">Scale After Review</div>
-                  <div className="mt-3 text-4xl font-bold text-white">Personal Terms</div>
+                  <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Personal Terms</div>
                   <p className="mt-3 text-sm leading-7 text-zinc-400">
                     Perform well and move into better conditions based on numbers, not vague promises.
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 grid items-stretch gap-4 sm:grid-cols-3">
+              <div className="mt-5 grid items-stretch gap-3 sm:grid-cols-3">
                 <Stat variant="hero" label="Creators" value="$500-$2k" sub="avg active range" />
                 <Stat variant="hero" label="Top Performers" value="$2k-$10k" sub="inside the system" />
                 <Stat variant="hero" label="Leaderboard" value="Live" sub="inside community" />
@@ -379,31 +437,33 @@ export default function QzinoAmbassadorProgramSite() {
           </div>
         </section>
 
-        <section id="roles" className="py-10">
+        <section id="roles" className="py-12">
           <SectionTitle eyebrow="Core Roles" title="Built for the people we actually want in the program" text="The structure is designed to be obvious from the first screen: creators monetize audience, hunters build networks, and VIP sourcers focus on high-value players." />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <FeatureCard icon="📡" title="Affiliate / Influencer" text="Monetize your traffic. Turn clicks, content, and audience trust into long-term revenue instead of one-off campaign payments." />
-            <FeatureCard icon="▶" title="Streamer" text="Use live attention the right way. Bring viewers into the system, test fast, and build recurring upside around your stream traffic." />
-            <FeatureCard icon="🎯" title="Hunter" text="Build your own earning network. Bring in other creators or partners and earn from everything they generate inside the system." />
-            <FeatureCard icon="👑" title="VIP Sourcing" text="If you can bring serious players, you get paid upfront and long term. High-value players mean high-value economics." />
+            <FeatureCard icon={<Wifi className="h-5 w-5" />} title="Affiliate / Influencer" text="Monetize your traffic. Turn clicks, content, and audience trust into long-term revenue instead of one-off campaign payments." />
+            <FeatureCard icon={<MonitorPlay className="h-5 w-5" />} title="Streamer" text="Use live attention the right way. Bring viewers into the system, test fast, and build recurring upside around your stream traffic." />
+            <FeatureCard icon={<Target className="h-5 w-5" />} title="Hunter" text="Build your own earning network. Bring in other creators or partners and earn from everything they generate inside the system." />
+            <FeatureCard icon={<Crown className="h-5 w-5" />} title="VIP Sourcing" text="If you can bring serious players, you get paid upfront and long term. High-value players mean high-value economics." />
           </div>
         </section>
 
         <section id="calculator" className="py-20">
           <SectionTitle eyebrow="Earnings Simulator" title="How much can you actually make?" text="Adjust the numbers below and see whether this is worth your time. This block is built to help creators, streamers, and sourcers evaluate real earning potential before they apply." />
 
-          <div className="mt-10 rounded-[32px] border border-white/10 bg-zinc-950/90 p-4 md:p-6">
+          <div className="mt-10 rounded-[32px] border border-white/10 bg-zinc-950/90 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.28)] md:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00] text-xl text-black">📊</div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B0ED00] text-black shadow-[0_10px_25px_rgba(176,237,0,0.2)]">
+                    <BarChart3 className="h-5 w-5" />
+                  </div>
                   <div>
                     <div className="text-2xl font-semibold text-white">Program Earnings Calculator</div>
                     <p className="mt-1 text-sm text-zinc-400">Choose the path that matches how you actually monetize: audience, streams, partner sourcing, or VIP players.</p>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-black p-1">
+              <div className="flex w-full flex-nowrap gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black p-1 lg:w-auto lg:overflow-visible">
                 {[
                   ["affiliate", "Creator / Affiliate"],
                   ["streamer", "Streamer"],
@@ -414,7 +474,7 @@ export default function QzinoAmbassadorProgramSite() {
                     key={key}
                     type="button"
                     onClick={() => setMode(key as typeof mode)}
-                    className={`rounded-xl px-4 py-2.5 text-sm transition ${mode === key ? "bg-[#B0ED00] text-black" : "text-zinc-300 hover:bg-white/10"}`}
+                    className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm transition ${mode === key ? "bg-[#B0ED00] text-black" : "text-zinc-300 hover:bg-white/10"}`}
                   >
                     {label}
                   </button>
@@ -473,16 +533,16 @@ export default function QzinoAmbassadorProgramSite() {
                 </div>
               </Card>
 
-              <div className="space-y-6">
-                <div className="rounded-[28px] bg-[#B0ED00] p-6 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-8">
+              <div className="space-y-4">
+                <div className="rounded-[28px] bg-[#B0ED00] p-5 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-6">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">Estimated Outcome</div>
-                  <div className="mt-4 text-5xl font-bold md:text-6xl">
+                  <div className="mt-3 text-4xl font-bold md:text-5xl">
                     {mode === "affiliate" && money(affiliate.longTotal)}
                     {mode === "streamer" && money(streamer.longTotal)}
                     {mode === "hunter" && money(hunter.total)}
                     {mode === "vip" && money(vip.total)}
                   </div>
-                  <p className="mt-4 max-w-md text-sm leading-7 text-black/70">
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-black/70">
                     {mode === "affiliate" && `Test period: ${money(affiliate.testTotal)} - Post-review: ${money(affiliate.longTotal)} - ${affiliate.bestFit}`}
                     {mode === "streamer" && `Test streams: ${money(streamer.testRevIncome)} - Post-review scenario: ${money(streamer.longTotal)} - ${streamer.verdict}`}
                     {mode === "hunter" && `${hunter.fit} - Network-based upside with extra FTD bonus on top.`}
@@ -492,43 +552,43 @@ export default function QzinoAmbassadorProgramSite() {
 
                 {mode === "affiliate" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat label="Estimated Clicks" value={num(affiliate.clicks)} />
-                    <Stat label="Registrations" value={num(affiliate.registrations)} />
-                    <Stat label="FTD" value={num(affiliate.ftd)} />
-                    <Stat label="Core NGR" value={money(affiliate.ngr)} />
-                    <Stat label="Test Period" value={money(affiliate.testTotal)} />
-                    <Stat label="Post-Review" value={money(affiliate.longTotal)} />
+                    <Stat variant="results" label="Estimated Clicks" value={num(affiliate.clicks)} />
+                    <Stat variant="results" label="Registrations" value={num(affiliate.registrations)} />
+                    <Stat variant="results" label="FTD" value={num(affiliate.ftd)} />
+                    <Stat variant="results" label="Core NGR" value={money(affiliate.ngr)} />
+                    <Stat variant="results" label="Test Period" value={money(affiliate.testTotal)} />
+                    <Stat variant="results" label="Post-Review" value={money(affiliate.longTotal)} />
                   </div>
                 )}
 
                 {mode === "streamer" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat label="Total Viewers" value={num(streamer.totalViewers)} />
-                    <Stat label="Registrations" value={num(streamer.regs)} />
-                    <Stat label="FTD" value={num(streamer.ftd)} />
-                    <Stat label="Deposits" value={money(streamer.deposits)} />
-                    <Stat label="Test Streams" value={money(streamer.testRevIncome)} />
-                    <Stat label="KPI Status" value={streamer.kpiReached ? "Reached" : "Below KPI"} />
+                    <Stat variant="results" label="Total Viewers" value={num(streamer.totalViewers)} />
+                    <Stat variant="results" label="Registrations" value={num(streamer.regs)} />
+                    <Stat variant="results" label="FTD" value={num(streamer.ftd)} />
+                    <Stat variant="results" label="Deposits" value={money(streamer.deposits)} />
+                    <Stat variant="results" label="Test Streams" value={money(streamer.testRevIncome)} />
+                    <Stat variant="results" label="KPI Status" value={streamer.kpiReached ? "Reached" : "Below KPI"} />
                   </div>
                 )}
 
                 {mode === "hunter" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat label="Total FTD" value={num(hunter.totalFtd)} />
-                    <Stat label="Deposits Generated" value={money(hunter.totalDeposits)} />
-                    <Stat label="Estimated NGR" value={money(hunter.totalNgr)} />
-                    <Stat label="Network Income" value={money(hunter.networkIncome)} />
-                    <Stat label="FTD Bonus" value={money(hunter.extraFtdBonus)} />
-                    <Stat label="Share Used" value={pct(hunterShare[0])} />
+                    <Stat variant="results" label="Total FTD" value={num(hunter.totalFtd)} />
+                    <Stat variant="results" label="Deposits Generated" value={money(hunter.totalDeposits)} />
+                    <Stat variant="results" label="Estimated NGR" value={money(hunter.totalNgr)} />
+                    <Stat variant="results" label="Network Income" value={money(hunter.networkIncome)} />
+                    <Stat variant="results" label="FTD Bonus" value={money(hunter.extraFtdBonus)} />
+                    <Stat variant="results" label="Share Used" value={pct(hunterShare[0])} />
                   </div>
                 )}
 
                 {mode === "vip" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat label="VIP Deposits" value={money(vip.totalDeposits)} />
-                    <Stat label="VIP NGR" value={money(vip.totalNgr)} />
-                    <Stat label="CPA Income" value={money(vip.cpaIncome)} />
-                    <Stat label="Lifetime Income" value={money(vip.lifetime)} />
+                    <Stat variant="results" label="VIP Deposits" value={money(vip.totalDeposits)} />
+                    <Stat variant="results" label="VIP NGR" value={money(vip.totalNgr)} />
+                    <Stat variant="results" label="CPA Income" value={money(vip.cpaIncome)} />
+                    <Stat variant="results" label="Lifetime Income" value={money(vip.lifetime)} />
                   </div>
                 )}
 
@@ -554,91 +614,67 @@ export default function QzinoAmbassadorProgramSite() {
           </div>
         </section>
 
-        <section id="community" className="py-10">
+        <section id="community" className="py-12">
           <SectionTitle eyebrow="Community Experience" title="Everything that matters happens inside the community" text="The site gets people interested. The community is the real operating system of the program - where onboarding, communication, tasks, tracking, and progression happen every day." />
           <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="grid gap-5 md:grid-cols-2">
-              <FeatureCard icon="💿" title="Role-based channels" text="Different participant types get access to the channels, materials, and conversations that match how they earn." />
-              <FeatureCard icon="📈" title="Tracking and visibility" text="Performance, roles, and progression are tied to the community-driven system instead of scattered communication." />
-              <FeatureCard icon="🏆" title="Live leaderboard" text="Competition and status are visible inside the hub, helping the best participants stay engaged and push harder." />
-              <FeatureCard icon="👥" title="Direct access to team" text="Stronger candidates don’t wait in generic support flows. They move directly into review, guidance, and faster scaling." />
+              <FeatureCard icon={<Disc3 className="h-5 w-5" />} title="Role-based channels" text="Different participant types get access to the channels, materials, and conversations that match how they earn." />
+              <FeatureCard icon={<BarChart3 className="h-5 w-5" />} title="Tracking and visibility" text="Performance, roles, and progression are tied to the community-driven system instead of scattered communication." />
+              <FeatureCard icon={<Trophy className="h-5 w-5" />} title="Live leaderboard" text="Competition and status are visible inside the hub, helping the best participants stay engaged and push harder." />
+              <FeatureCard icon={<Users className="h-5 w-5" />} title="Direct access to team" text="Stronger candidates don’t wait in generic support flows. They move directly into review, guidance, and faster scaling." />
             </div>
 
-            <Card className="rounded-[30px] p-6">
+            <Card className="rounded-[30px] p-6 md:p-7">
               <div className="text-2xl font-semibold">Inside the community</div>
               <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
                 This is not just a chat. It is the main environment where people enter the program, get sorted by role, receive instructions, and grow into stronger monetization paths.
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Stat label="Onboarding" value="Inside community" />
-                <Stat label="Task Flow" value="Role-based" />
-                <Stat label="Leaderboard" value="Live" />
-                <Stat label="Access" value="For contributors" />
+                <Stat variant="compact" label="Onboarding" value="Inside community" />
+                <Stat variant="compact" label="Task Flow" value="Role-based" />
+                <Stat variant="compact" label="Leaderboard" value="Live" />
+                <Stat variant="compact" label="Access" value="For contributors" />
               </div>
             </Card>
           </div>
         </section>
 
-        <section id="program" className="py-10">
+        <section id="program" className="py-12">
           <SectionTitle eyebrow="Program Structure" title="Simple enough to enter, strong enough to keep top performers" text="The structure is designed to maximize trial, filter weak candidates fast, and move the right people into long-term terms based on performance." />
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
-            <Card className="rounded-[30px] p-6">
-              <div className="flex items-center gap-3 text-2xl font-semibold"><span className="text-[#B0ED00]">✨</span> Test Period</div>
+            <Card className="rounded-[30px] p-6 md:p-7">
+              <div className="flex items-center gap-3 text-2xl font-semibold"><Sparkles className="h-5 w-5 text-[#B0ED00]" /> Test Period</div>
               <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
                 Start with the best conditions. No overloaded onboarding. No long warm-up. You enter, test, and see quickly whether the system fits you.
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <Stat label="Offer" value="Up to 35% NGR" />
-                <Stat label="Duration" value="15-30 days" />
-                <Stat label="Goal" value="Prove Fit" />
+                <Stat variant="program" label="Offer" value="Up to 35% NGR" />
+                <Stat variant="program" label="Duration" value="15-30 days" />
+                <Stat variant="program" label="Goal" value="Prove Fit" />
               </div>
             </Card>
 
-            <Card className="rounded-[30px] p-6">
-              <div className="flex items-center gap-3 text-2xl font-semibold"><span className="text-[#B0ED00]">📈</span> Performance Review</div>
+            <Card className="rounded-[30px] p-6 md:p-7">
+              <div className="flex items-center gap-3 text-2xl font-semibold"><ClipboardCheck className="h-5 w-5 text-[#B0ED00]" /> Performance Review</div>
               <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
                 We do not guess. We look at numbers. If you perform, you unlock better conditions, stronger support, and more room to scale.
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <Stat label="Review Based On" value="FTD + GEO" />
-                <Stat label="Output" value="Personal Terms" />
-                <Stat label="Outcome" value="Scale" />
+                <Stat variant="program" label="Review Based On" value="FTD + GEO" />
+                <Stat variant="program" label="Output" value="Personal Terms" />
+                <Stat variant="program" label="Outcome" value="Scale" />
               </div>
             </Card>
           </div>
 
           <div className="mt-5 grid gap-5 xl:grid-cols-3">
-            <Card className="border-[#B0ED00]/20 bg-[#B0ED00]/5 p-6 md:p-7 xl:col-span-3">
-              <div className="text-sm font-semibold text-[#B0ED00]">Simple progression</div>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                There is a progression system in the program, but you do not need to learn a complicated structure. In practice it works very simply: you join, test the program, show results, and unlock better conditions.
-              </p>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 1</div>
-                  <div className="mt-2 text-base font-semibold text-white">Enter</div>
-                  <div className="mt-2 text-sm leading-6 text-zinc-400">Start with test conditions and get into the system.</div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 2</div>
-                  <div className="mt-2 text-base font-semibold text-white">Perform</div>
-                  <div className="mt-2 text-sm leading-6 text-zinc-400">Your results show the quality of your traffic and activity.</div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Step 3</div>
-                  <div className="mt-2 text-base font-semibold text-white">Scale</div>
-                  <div className="mt-2 text-sm leading-6 text-zinc-400">Better performance unlocks better terms, bonuses, and deeper access.</div>
-                </div>
-              </div>
-              <p className="mt-4 text-xs leading-6 text-zinc-500">In other words: the system exists, but from your side it is just simple performance-based growth.</p>
-            </Card>
-            <FeatureCard icon="💰" title="Bonus Stack" text="Sub-ambassador revenue, farming upside, FTD overperformance bonuses, and leaderboard-based motivation keep the economics attractive after entry." />
-            <FeatureCard icon="🛡" title="Strict Anti-Fraud" text="The system is built to reject fake stats, weak traffic, and abusive behavior early. Serious participants stay, weak traffic gets filtered out." />
-            <FeatureCard icon="✔" title="Real Retention Logic" text="The goal is not just to get people in. The goal is to give strong participants reasons to stay, perform, and grow inside the system." />
+            <FeatureCard icon={<BadgeDollarSign className="h-5 w-5" />} title="Bonus Stack" text="Sub-ambassador revenue, farming upside, FTD overperformance bonuses, and leaderboard-based motivation keep the economics attractive after entry." />
+            <FeatureCard icon={<ShieldCheck className="h-5 w-5" />} title="Strict Anti-Fraud" text="The system is built to reject fake stats, weak traffic, and abusive behavior early. Serious participants stay, weak traffic gets filtered out." />
+            <FeatureCard icon={<Activity className="h-5 w-5" />} title="Real Retention Logic" text="The goal is not just to get people in. The goal is to give strong participants reasons to stay, perform, and grow inside the system." />
           </div>
         </section>
 
-        <section className="py-20">
+        <section className="py-18">
           <SectionTitle eyebrow="Flow" title="How serious people move through the program" text="The journey is simple on the surface and selective underneath. That makes the program easier to enter, but harder to abuse." />
           <div className="mt-10 grid gap-5 md:grid-cols-4">
             {[
@@ -658,15 +694,15 @@ export default function QzinoAmbassadorProgramSite() {
 
         <section id="faq" className="py-10">
           <SectionTitle eyebrow="FAQ" title="The main objections answered directly" text="The site should remove hesitation fast without turning into an overloaded document." />
-          <div className="mt-10 rounded-[30px] border border-white/10 bg-zinc-950 p-4 md:p-6">
+          <div className="mt-10 rounded-[30px] border border-white/10 bg-zinc-950 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.2)] md:p-6">
             {[
               ["Who is this built for?", "Influencers, streamers, affiliates, hunters, and VIP sourcers who already have traffic, audience, or the right network to monetize."],
               ["Why should creators care?", "Because this is built around predictable revenue, not just random one-off campaign fees. Strong creators can grow inside the system instead of restarting every month."],
               ["What happens after the test period?", "The team reviews actual performance and offers stronger long-term conditions based on your real numbers."],
               ["How strict is fraud policy?", "Very strict. Fake stats, abusive behavior, and low-quality schemes should be treated as immediate disqualification and payout block."],
             ].map(([title, text]) => (
-              <details key={title} className="border-b border-white/10 py-4 last:border-0">
-                <summary className="cursor-pointer list-none text-left text-white">{title}</summary>
+              <details key={title} className="border-b border-white/10 py-5 last:border-0">
+                <summary className="cursor-pointer list-none text-left text-white transition hover:text-[#B0ED00]">{title}</summary>
                 <p className="mt-3 text-sm leading-7 text-zinc-400">{text}</p>
               </details>
             ))}
@@ -678,16 +714,24 @@ export default function QzinoAmbassadorProgramSite() {
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#B0ED00]">Final step</div>
-                <h3 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl">Get access to the system.</h3>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white md:text-5xl">Get access to the system.</h3>
                 <p className="mt-4 text-base leading-8 text-zinc-400">
                   This is not for everyone. If you have audience, traffic, or strong connections, you can fit in fast. If not, this probably will not work for you.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
-                  Join the community <span>→</span>
+              <div className="flex w-full max-w-[22rem] flex-col gap-3">
+                <a
+                  href="https://discord.gg/R3EpXeQf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-[3.75rem] w-full items-center justify-center gap-3 rounded-2xl bg-[#B0ED00] px-6 py-3.5 text-lg font-semibold tracking-tight text-black shadow-[0_12px_30px_rgba(176,237,0,0.16)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#c6ff22]"
+                >
+                  Join the community <span className="text-xl leading-none">→</span>
                 </a>
-                <button type="button" className="rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-base text-white transition hover:bg-white/10">
+                <button
+                  type="button"
+                  className="inline-flex min-h-[3.75rem] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 py-3.5 text-lg font-medium tracking-tight text-white transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
+                >
                   Contact Program Team
                 </button>
               </div>
