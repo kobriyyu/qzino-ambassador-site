@@ -38,10 +38,10 @@ function SectionTitle({
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-white">{value}</div>
-      {sub ? <div className="mt-1 text-xs text-zinc-500">{sub}</div> : null}
+    <div className="flex h-full min-h-[9.5rem] flex-col rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm md:min-h-[11.5rem]">
+      <div className="min-h-[2.75rem] text-[10px] uppercase tracking-[0.18em] text-zinc-500 md:min-h-[3.25rem]">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-white md:text-[2.625rem]">{value}</div>
+      {sub ? <div className="mt-auto pt-3 text-xs text-zinc-500 md:text-sm">{sub}</div> : null}
     </div>
   );
 }
@@ -263,7 +263,7 @@ export default function QzinoAmbassadorProgramSite() {
               <a href="#program" className="text-sm text-zinc-400 transition hover:text-white">Program</a>
               <a href="#faq" className="text-sm text-zinc-400 transition hover:text-white">FAQ</a>
             </div>
-            <a href="#calculator" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 font-semibold text-black transition hover:bg-[#c6ff22]">
+            <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 font-semibold text-black transition hover:bg-[#c6ff22]">
               Join the community
             </a>
           </div>
@@ -271,11 +271,9 @@ export default function QzinoAmbassadorProgramSite() {
 
         <section className="grid items-center gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
           <div>
-            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">
-              Qzino Ambassador Program - Turn your audience into <span className="text-[#B0ED00]">predictable revenue</span>.
-            </h1>
+            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">Qzino Ambassador Program</h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-              This is the official Qzino Ambassador Program. Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
+              Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <MiniPill>Up to 35% revenue share</MiniPill>
@@ -644,7 +642,7 @@ export default function QzinoAmbassadorProgramSite() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
-                <a href="#calculator" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
+                <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]">
                   Join the community <span>→</span>
                 </a>
                 <button type="button" className="rounded-xl border border-white/15 bg-white/5 px-6 py-4 text-base text-white transition hover:bg-white/10">
