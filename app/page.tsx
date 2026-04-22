@@ -254,9 +254,7 @@ export default function QzinoAmbassadorProgramSite() {
         <header className="sticky top-4 z-20 rounded-[24px] border border-white/10 bg-zinc-950/80 px-5 py-4 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl border border-[#B0ED00]/30 bg-[#B0ED00]/10 px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">
-                Qzino
-              </div>
+              <img src="/logo.png" alt="Qzino" className="h-9 w-auto md:h-11" />
             </div>
             <div className="hidden items-center gap-6 md:flex">
               <a href="#roles" className="text-sm text-zinc-400 transition hover:text-white">Roles</a>
