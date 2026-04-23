@@ -29,8 +29,34 @@ function num(v: number) {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(v);
 }
 
-function pct(v: number) {
-  return `${v.toFixed(1).replace(/\.0$/, "")}%`;
+function rangeMoney(min: number, max: number) {
+  if (Math.round(min) === Math.round(max)) return money(max);
+  return `${money(min)}-${money(max)}`;
+}
+
+function creatorTier(ftd: number) {
+  if (ftd >= 100) return { name: "Tier 3 / Elite", rate: 0.35, next: "Top tier unlocked" };
+  if (ftd >= 50) return { name: "Tier 2 / Enforcer", rate: 0.3, next: `${num(100 - ftd)} FTD to Tier 3` };
+  if (ftd >= 20) return { name: "Tier 1 / Operative", rate: 0.25, next: `${num(50 - ftd)} FTD to Tier 2` };
+  return { name: "Tier 0 / Scout", rate: 0.35, next: `${num(Math.max(20 - ftd, 0))} FTD to Tier 1` };
+}
+
+function streamerTier(deposits: number) {
+  if (deposits >= 1200) return { name: "KPI Passed", fixedEligible: true, next: "Fixed terms reviewed individually" };
+  return { name: "Test Streams", fixedEligible: false, next: `${money(1200 - deposits)} deposits to KPI` };
+}
+
+function hunterTier(ftd: number) {
+  if (ftd >= 100) return { name: "Tier 3 / Elite", rate: 0.35, bonus: 4, next: "Top tier unlocked" };
+  if (ftd >= 50) return { name: "Tier 2 / Enforcer", rate: 0.3, bonus: 3, next: `${num(100 - ftd)} FTD to Tier 3` };
+  if (ftd >= 20) return { name: "Tier 1 / Operative", rate: 0.25, bonus: 0, next: `${num(50 - ftd)} FTD to Tier 2` };
+  return { name: "Tier 0 / Scout", rate: 0.35, bonus: 0, next: `${num(Math.max(20 - ftd, 0))} FTD to Tier 1` };
+}
+
+function vipTier(avgDeposit: number, players: number) {
+  if (avgDeposit >= 1000) return { name: "VIP $1,000+", cpa: 50, lifetimeShare: 0.15, note: "CPA reviewed individually", next: "Individual bonus review" };
+  if (avgDeposit >= 500) return { name: "VIP $500-$999", cpa: 50, lifetimeShare: 0.15, note: "Fixed CPA tier", next: `${num(Math.max(3 - players, 0))} VIPs can support Tier 3 review` };
+  return { name: "Regular FTD", cpa: 20, lifetimeShare: 0.15, note: "$15-$25 CPA depending on GEO", next: `${money(500 - avgDeposit)} avg deposit to VIP tier` };
 }
 
 function SectionTitle({
@@ -66,13 +92,13 @@ function Stat({
   const isCompact = variant === "compact";
   const isResults = variant === "results";
   const isProgram = variant === "program";
-  const keepValueOnOneLine = isHero && /[$+0-9]/.test(value) && !value.includes("CPA");
+  const keepValueOnOneLine = isHero && !value.includes(" + ");
 
   return (
     <div
       className={`min-w-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm ${
         isHero
-          ? "flex h-full min-h-[8.5rem] flex-col p-4 md:min-h-[9.5rem] md:p-5"
+          ? "flex h-full min-h-[7.5rem] flex-col p-4 md:min-h-[8.25rem] md:p-5"
           : isCompact
             ? "flex h-full min-h-[8.25rem] flex-col p-4 md:min-h-[9rem] md:p-5"
             : isResults
@@ -85,7 +111,7 @@ function Stat({
       <div
         className={`min-w-0 uppercase text-zinc-500 ${
           isHero
-            ? "min-h-[2rem] text-[9px] leading-snug tracking-[0.16em] md:min-h-[2.25rem] md:text-[10px]"
+            ? "min-h-[1.5rem] text-[9px] leading-snug tracking-[0.16em] md:min-h-[1.75rem] md:text-[10px]"
             : isCompact
               ? "min-h-[1.6rem] text-[9px] leading-snug tracking-[0.18em] md:min-h-[1.9rem] md:text-[10px]"
               : isResults
@@ -100,7 +126,7 @@ function Stat({
       <div
         className={`min-w-0 text-white ${
           isHero
-            ? `mt-2 max-w-full text-[0.95rem] leading-[1.05] font-semibold tracking-tight sm:text-[1.05rem] lg:text-[1.2rem] xl:text-[1.35rem] ${
+            ? `mt-2 max-w-full text-[0.95rem] leading-[1.05] font-semibold tracking-tight sm:text-[1.05rem] lg:text-[1.15rem] xl:text-[1.25rem] ${
                 keepValueOnOneLine ? "whitespace-nowrap" : "whitespace-normal break-words"
               }`
             : isCompact
@@ -203,6 +229,43 @@ function RangeRow({
   );
 }
 
+function AssumptionPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-xs text-zinc-400">
+      <span className="text-zinc-500">{label}: </span>
+      <span className="font-medium text-zinc-200">{value}</span>
+    </div>
+  );
+}
+
+function TierCard({
+  name,
+  detail,
+  next,
+}: {
+  name: string;
+  detail: string;
+  next: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#B0ED00]/20 bg-[#B0ED00]/8 p-4">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#B0ED00]">Estimated Tier</div>
+      <div className="mt-2 text-xl font-semibold tracking-tight text-white">{name}</div>
+      <div className="mt-2 text-sm leading-6 text-zinc-400">{detail}</div>
+      <div className="mt-3 rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-xs text-zinc-400">{next}</div>
+    </div>
+  );
+}
+
+function RuleRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-3">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{label}</span>
+      <span className="text-right text-sm font-semibold text-zinc-200">{value}</span>
+    </div>
+  );
+}
+
 export default function QzinoAmbassadorProgramSite() {
   const [mode, setMode] = useState<"affiliate" | "streamer" | "hunter" | "vip">("affiliate");
   const [openForm, setOpenForm] = useState(false);
@@ -214,85 +277,64 @@ export default function QzinoAmbassadorProgramSite() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [reach, setReach] = useState([250000]);
-  const [ctr, setCtr] = useState([2.2]);
-  const [regRate, setRegRate] = useState([14]);
-  const [ftdRate, setFtdRate] = useState([18]);
+  const [monthlyFtd, setMonthlyFtd] = useState([45]);
   const [avgDeposit, setAvgDeposit] = useState([110]);
-  const [ngrRate, setNgrRate] = useState([4]);
-  const [testRevshare, setTestRevshare] = useState([35]);
-  const [longRevshare, setLongRevshare] = useState([25]);
-  const [contentFixed, setContentFixed] = useState([0]);
-  const [subAmbNgr, setSubAmbNgr] = useState([1500]);
 
-  const [avgViewers, setAvgViewers] = useState([450]);
-  const [streamsCount, setStreamsCount] = useState([3]);
-  const [streamClickRate, setStreamClickRate] = useState([6]);
-  const [streamRegRate, setStreamRegRate] = useState([18]);
-  const [streamFtdRate, setStreamFtdRate] = useState([22]);
-  const [streamAvgDeposit, setStreamAvgDeposit] = useState([120]);
-  const [streamRequestedFixed, setStreamRequestedFixed] = useState([400]);
+  const [streamFtd, setStreamFtd] = useState([18]);
+  const [streamDeposits, setStreamDeposits] = useState([2200]);
 
-  const [recruitedPartners, setRecruitedPartners] = useState([6]);
-  const [avgFtdPerPartner, setAvgFtdPerPartner] = useState([25]);
-  const [avgDepositPerPartner, setAvgDepositPerPartner] = useState([90]);
-  const [hunterShare, setHunterShare] = useState([10]);
-  const [bonusPerExtraFtd, setBonusPerExtraFtd] = useState([3]);
+  const [hunterFtd, setHunterFtd] = useState([60]);
+  const [networkNgr, setNetworkNgr] = useState([5000]);
 
   const [vipPlayers, setVipPlayers] = useState([4]);
   const [avgVipDeposit, setAvgVipDeposit] = useState([900]);
-  const [vipLifetimeShare, setVipLifetimeShare] = useState([15]);
-  const [vipCpa, setVipCpa] = useState([50]);
 
   const affiliate = useMemo(() => {
-    const clicks = reach[0] * (ctr[0] / 100);
-    const registrations = clicks * (regRate[0] / 100);
-    const ftd = registrations * (ftdRate[0] / 100);
+    const ftd = monthlyFtd[0];
+    const tier = creatorTier(ftd);
     const deposits = ftd * avgDeposit[0];
-    const ngr = deposits * (ngrRate[0] / 100);
-    const testRevIncome = ngr * (testRevshare[0] / 100);
-    const longRevIncome = ngr * (longRevshare[0] / 100);
-    const subAmbIncome = subAmbNgr[0] * 0.05;
-    const testTotal = testRevIncome + subAmbIncome + contentFixed[0];
-    const longTotal = longRevIncome + subAmbIncome + contentFixed[0];
+    const ngr = deposits * 0.04;
+    const testTotal = ngr * 0.35;
+    const longTotal = ngr * tier.rate;
     const bestFit = ftd >= 20 ? "Strong fit for review" : ftd >= 8 ? "Good test candidate" : "Needs stronger traffic";
-    return { clicks, registrations, ftd, deposits, ngr, testTotal, longTotal, bestFit };
-  }, [reach, ctr, regRate, ftdRate, avgDeposit, ngrRate, testRevshare, longRevshare, contentFixed, subAmbNgr]);
+    const hasUpsideRange = Math.round(testTotal) !== Math.round(longTotal);
+    return { ftd, deposits, ngr, testTotal, longTotal, bestFit, tier, hasUpsideRange };
+  }, [monthlyFtd, avgDeposit]);
 
   const streamer = useMemo(() => {
-    const totalViewers = avgViewers[0] * streamsCount[0];
-    const clicks = totalViewers * (streamClickRate[0] / 100);
-    const regs = clicks * (streamRegRate[0] / 100);
-    const ftd = regs * (streamFtdRate[0] / 100);
-    const deposits = ftd * streamAvgDeposit[0];
+    const ftd = streamFtd[0];
+    const deposits = streamDeposits[0];
+    const tier = streamerTier(deposits);
     const ngr = deposits * 0.04;
     const testRevIncome = ngr * 0.2;
     const kpiReached = deposits >= 1200;
-    const longTotal = kpiReached ? testRevIncome + streamRequestedFixed[0] : testRevIncome;
+    const longTotal = testRevIncome;
     const verdict = kpiReached ? "KPI reached - fixed can be justified" : "Below streamer KPI - revshare only";
-    return { totalViewers, regs, ftd, deposits, testRevIncome, longTotal, verdict, kpiReached };
-  }, [avgViewers, streamsCount, streamClickRate, streamRegRate, streamFtdRate, streamAvgDeposit, streamRequestedFixed]);
+    return { ftd, deposits, ngr, testRevIncome, longTotal, verdict, kpiReached, tier };
+  }, [streamFtd, streamDeposits]);
 
   const hunter = useMemo(() => {
-    const totalFtd = recruitedPartners[0] * avgFtdPerPartner[0];
-    const totalDeposits = totalFtd * avgDepositPerPartner[0];
-    const totalNgr = totalDeposits * 0.04;
-    const networkIncome = totalNgr * (hunterShare[0] / 100);
-    const extraFtdBonus = Math.max(totalFtd - 100, 0) * bonusPerExtraFtd[0];
-    const total = networkIncome + extraFtdBonus;
-    const fit = recruitedPartners[0] >= 5 ? "Good network model" : "Early-stage network";
-    return { totalFtd, totalDeposits, totalNgr, networkIncome, extraFtdBonus, total, fit };
-  }, [recruitedPartners, avgFtdPerPartner, avgDepositPerPartner, hunterShare, bonusPerExtraFtd]);
+    const totalFtd = hunterFtd[0];
+    const tier = hunterTier(totalFtd);
+    const totalNgr = networkNgr[0];
+    const revShareIncome = totalNgr * tier.rate;
+    const subAmbIncome = totalNgr * 0.05;
+    const extraFtdBonus = tier.bonus ? Math.max(totalFtd - 50, 0) * tier.bonus : 0;
+    const total = revShareIncome + subAmbIncome + extraFtdBonus;
+    const fit = totalFtd >= 50 ? "FTD bonus eligible" : "Building toward Tier 2 bonus";
+    return { totalFtd, totalNgr, revShareIncome, subAmbIncome, extraFtdBonus, total, fit, tier };
+  }, [hunterFtd, networkNgr]);
 
   const vip = useMemo(() => {
+    const tier = vipTier(avgVipDeposit[0], vipPlayers[0]);
     const totalDeposits = vipPlayers[0] * avgVipDeposit[0];
     const totalNgr = totalDeposits * 0.04;
-    const lifetime = totalNgr * (vipLifetimeShare[0] / 100);
-    const cpaIncome = vipPlayers[0] * vipCpa[0];
+    const lifetime = totalNgr * tier.lifetimeShare;
+    const cpaIncome = vipPlayers[0] * tier.cpa;
     const total = lifetime + cpaIncome;
     const fit = avgVipDeposit[0] >= 1000 ? "High-value VIP profile" : "Standard VIP sourcing";
-    return { totalDeposits, totalNgr, lifetime, cpaIncome, total, fit };
-  }, [vipPlayers, avgVipDeposit, vipLifetimeShare, vipCpa]);
+    return { totalDeposits, totalNgr, lifetime, cpaIncome, total, fit, tier };
+  }, [vipPlayers, avgVipDeposit]);
 
   async function handleApplicationSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -389,7 +431,7 @@ export default function QzinoAmbassadorProgramSite() {
                 View System
               </a>
             </div>
-            <div className="mt-8 grid max-w-5xl grid-cols-2 items-stretch gap-3 2xl:grid-cols-4">
+            <div className="mt-8 grid max-w-5xl grid-cols-2 items-stretch gap-3 xl:grid-cols-4">
               <Stat variant="hero" label="Top Offer" value="Up to 35%" sub="test period" />
               <Stat variant="hero" label="VIP Model" value="CPA + Lifetime" sub="high-value players" />
               <Stat variant="hero" label="Network Layer" value="+5%" sub="sub-ambassadors" />
@@ -415,16 +457,10 @@ export default function QzinoAmbassadorProgramSite() {
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
                   <div className="text-sm font-medium text-zinc-400">Best Entry Conditions</div>
                   <div className="mt-3 text-3xl font-semibold tracking-tight text-[#B0ED00] md:text-4xl">Up to 35% NGR</div>
-                  <p className="mt-3 text-sm leading-7 text-zinc-400">
-                    Start with strong terms so you can test the system fast and see real upside before committing long term.
-                  </p>
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
                   <div className="text-sm font-medium text-zinc-400">Scale After Review</div>
                   <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Personal Terms</div>
-                  <p className="mt-3 text-sm leading-7 text-zinc-400">
-                    Perform well and move into better conditions based on numbers, not vague promises.
-                  </p>
                 </div>
               </div>
 
@@ -482,54 +518,119 @@ export default function QzinoAmbassadorProgramSite() {
               </div>
             </div>
 
-            <div className="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+            <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
               <Card className="bg-black/30">
                 <div className="space-y-4 p-4 md:p-5">
+                  <div className="rounded-2xl border border-[#B0ED00]/15 bg-[#B0ED00]/5 p-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">Document-based model</div>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">
+                      Rewards are calculated from the program document: tiered NGR, FTD bonus, VIP CPA, Sub-Amb layer, and review-based fixed terms.
+                    </p>
+                  </div>
+
                   {mode === "affiliate" && (
                     <>
-                      <RangeRow label="Monthly Reach / Traffic" value={num(reach[0])} min={10000} max={1500000} step={10000} state={reach} setState={setReach} />
-                      <RangeRow label="CTR to Offer" value={pct(ctr[0])} min={0.5} max={10} step={0.1} state={ctr} setState={setCtr} />
-                      <RangeRow label="Registration Rate" value={pct(regRate[0])} min={2} max={40} step={1} state={regRate} setState={setRegRate} />
-                      <RangeRow label="FTD Rate" value={pct(ftdRate[0])} min={3} max={50} step={1} state={ftdRate} setState={setFtdRate} />
+                      <TierCard
+                        name={affiliate.tier.name}
+                        detail={`${Math.round(affiliate.tier.rate * 100)}% NGR applied from current FTD tier.`}
+                        next={affiliate.tier.next}
+                      />
+                      <RangeRow label="Monthly FTD" value={num(monthlyFtd[0])} min={5} max={250} step={5} state={monthlyFtd} setState={setMonthlyFtd} />
                       <RangeRow label="Average Deposit" value={money(avgDeposit[0])} min={20} max={500} step={10} state={avgDeposit} setState={setAvgDeposit} />
-                      <RangeRow label="Estimated NGR Rate" value={pct(ngrRate[0])} min={1} max={10} step={0.5} state={ngrRate} setState={setNgrRate} />
-                      <RangeRow label="Test Period RevShare" value={pct(testRevshare[0])} min={20} max={35} step={1} state={testRevshare} setState={setTestRevshare} />
-                      <RangeRow label="Post-Review RevShare" value={pct(longRevshare[0])} min={20} max={35} step={1} state={longRevshare} setState={setLongRevshare} />
-                      <RangeRow label="Monthly Fixed / Content Support" value={money(contentFixed[0])} min={0} max={3000} step={50} state={contentFixed} setState={setContentFixed} />
-                      <RangeRow label="Sub-Ambassador Monthly NGR" value={money(subAmbNgr[0])} min={0} max={10000} step={100} state={subAmbNgr} setState={setSubAmbNgr} />
                     </>
                   )}
 
                   {mode === "streamer" && (
                     <>
-                      <RangeRow label="Average Viewers per Stream" value={num(avgViewers[0])} min={50} max={5000} step={50} state={avgViewers} setState={setAvgViewers} />
-                      <RangeRow label="Number of Streams" value={num(streamsCount[0])} min={1} max={10} step={1} state={streamsCount} setState={setStreamsCount} />
-                      <RangeRow label="Click Rate from Stream" value={pct(streamClickRate[0])} min={1} max={20} step={0.5} state={streamClickRate} setState={setStreamClickRate} />
-                      <RangeRow label="Registration Rate" value={pct(streamRegRate[0])} min={5} max={40} step={1} state={streamRegRate} setState={setStreamRegRate} />
-                      <RangeRow label="FTD Rate" value={pct(streamFtdRate[0])} min={5} max={40} step={1} state={streamFtdRate} setState={setStreamFtdRate} />
-                      <RangeRow label="Average Deposit" value={money(streamAvgDeposit[0])} min={20} max={500} step={10} state={streamAvgDeposit} setState={setStreamAvgDeposit} />
-                      <RangeRow label="Requested Fixed After Review" value={money(streamRequestedFixed[0])} min={0} max={2000} step={50} state={streamRequestedFixed} setState={setStreamRequestedFixed} />
+                      <TierCard
+                        name={streamer.tier.name}
+                        detail={streamer.tier.fixedEligible ? "20% NGR now. Fixed terms are reviewed individually after KPI." : "20% NGR test model. Fixed is not available before KPI."}
+                        next={streamer.tier.next}
+                      />
+                      <RangeRow label="Monthly FTD from Streams" value={num(streamFtd[0])} min={3} max={150} step={3} state={streamFtd} setState={setStreamFtd} />
+                      <RangeRow label="Monthly Deposits Generated" value={money(streamDeposits[0])} min={300} max={25000} step={100} state={streamDeposits} setState={setStreamDeposits} />
                     </>
                   )}
 
                   {mode === "hunter" && (
                     <>
-                      <RangeRow label="Recruited Partners" value={num(recruitedPartners[0])} min={1} max={30} step={1} state={recruitedPartners} setState={setRecruitedPartners} />
-                      <RangeRow label="Average FTD per Partner" value={num(avgFtdPerPartner[0])} min={3} max={100} step={1} state={avgFtdPerPartner} setState={setAvgFtdPerPartner} />
-                      <RangeRow label="Average Deposit per FTD" value={money(avgDepositPerPartner[0])} min={20} max={300} step={5} state={avgDepositPerPartner} setState={setAvgDepositPerPartner} />
-                      <RangeRow label="Your Network Share" value={pct(hunterShare[0])} min={5} max={20} step={1} state={hunterShare} setState={setHunterShare} />
-                      <RangeRow label="Bonus per Extra FTD" value={money(bonusPerExtraFtd[0])} min={2} max={5} step={1} state={bonusPerExtraFtd} setState={setBonusPerExtraFtd} />
+                      <TierCard
+                        name={hunter.tier.name}
+                        detail={`${Math.round(hunter.tier.rate * 100)}% RevShare + 5% Sub-Amb NGR. FTD bonus starts from Tier 2.`}
+                        next={hunter.tier.next}
+                      />
+                      <RangeRow label="Monthly FTD" value={num(hunterFtd[0])} min={5} max={250} step={5} state={hunterFtd} setState={setHunterFtd} />
+                      <RangeRow label="Monthly NGR" value={money(networkNgr[0])} min={500} max={50000} step={500} state={networkNgr} setState={setNetworkNgr} />
                     </>
                   )}
 
                   {mode === "vip" && (
                     <>
+                      <TierCard
+                        name={vip.tier.name}
+                        detail={`${money(vip.tier.cpa)} CPA + ${Math.round(vip.tier.lifetimeShare * 100)}% lifetime NGR share.`}
+                        next={vip.tier.next}
+                      />
                       <RangeRow label="VIP Players Acquired" value={num(vipPlayers[0])} min={1} max={20} step={1} state={vipPlayers} setState={setVipPlayers} />
                       <RangeRow label="Average VIP Deposit" value={money(avgVipDeposit[0])} min={500} max={5000} step={50} state={avgVipDeposit} setState={setAvgVipDeposit} />
-                      <RangeRow label="Lifetime RevShare" value={pct(vipLifetimeShare[0])} min={10} max={25} step={1} state={vipLifetimeShare} setState={setVipLifetimeShare} />
-                      <RangeRow label="CPA per VIP" value={money(vipCpa[0])} min={50} max={250} step={10} state={vipCpa} setState={setVipCpa} />
                     </>
                   )}
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <AssumptionPill label="NGR" value="4%" />
+                    {mode === "affiliate" && (
+                      <>
+                        <AssumptionPill label="Current tier" value={`${affiliate.tier.name} / ${Math.round(affiliate.tier.rate * 100)}%`} />
+                        <AssumptionPill label="Top offer" value="35%" />
+                      </>
+                    )}
+                    {mode === "streamer" && (
+                      <>
+                        <AssumptionPill label="Stream RevShare" value="20% NGR" />
+                        <AssumptionPill label="Fixed" value={streamer.tier.fixedEligible ? "Review after KPI" : "Not eligible yet"} />
+                      </>
+                    )}
+                    {mode === "hunter" && (
+                      <>
+                        <AssumptionPill label="RevShare" value={`${Math.round(hunter.tier.rate * 100)}%`} />
+                        <AssumptionPill label="Sub-Amb" value="5% NGR" />
+                        <AssumptionPill label="FTD bonus" value={hunter.tier.bonus ? `$${hunter.tier.bonus}/FTD estimate` : "Tier 2+"} />
+                      </>
+                    )}
+                    {mode === "vip" && (
+                      <>
+                        <AssumptionPill label="CPA" value={money(vip.tier.cpa)} />
+                        <AssumptionPill label="Lifetime" value={`${Math.round(vip.tier.lifetimeShare * 100)}%`} />
+                      </>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2 pt-1">
+                    {mode === "affiliate" && (
+                      <>
+                        <RuleRow label="Tier KPI" value="20 / 50 / 100 FTD" />
+                        <RuleRow label="Model A" value="25% / 30% / 35% NGR" />
+                      </>
+                    )}
+                    {mode === "streamer" && (
+                      <>
+                        <RuleRow label="Test KPI" value="$1,200 deposits" />
+                        <RuleRow label="Fixed" value="Individual after review" />
+                      </>
+                    )}
+                    {mode === "hunter" && (
+                      <>
+                        <RuleRow label="Bonus" value="$2-$4 per extra FTD" />
+                        <RuleRow label="Sub-Amb" value="+5% NGR" />
+                      </>
+                    )}
+                    {mode === "vip" && (
+                      <>
+                        <RuleRow label="VIP CPA" value="$50 for $500-$999" />
+                        <RuleRow label="$1,000+" value="Individual review" />
+                      </>
+                    )}
+                  </div>
                 </div>
               </Card>
 
@@ -537,49 +638,43 @@ export default function QzinoAmbassadorProgramSite() {
                 <div className="rounded-[28px] bg-[#B0ED00] p-5 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-6">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">Estimated Outcome</div>
                   <div className="mt-3 text-4xl font-bold md:text-5xl">
-                    {mode === "affiliate" && money(affiliate.longTotal)}
+                    {mode === "affiliate" && rangeMoney(affiliate.longTotal, affiliate.testTotal)}
                     {mode === "streamer" && money(streamer.longTotal)}
                     {mode === "hunter" && money(hunter.total)}
                     {mode === "vip" && money(vip.total)}
                   </div>
                   <p className="mt-3 max-w-xl text-sm leading-6 text-black/70">
-                    {mode === "affiliate" && `Test period: ${money(affiliate.testTotal)} - Post-review: ${money(affiliate.longTotal)} - ${affiliate.bestFit}`}
-                    {mode === "streamer" && `Test streams: ${money(streamer.testRevIncome)} - Post-review scenario: ${money(streamer.longTotal)} - ${streamer.verdict}`}
-                    {mode === "hunter" && `${hunter.fit} - Network-based upside with extra FTD bonus on top.`}
-                    {mode === "vip" && `${vip.fit} - CPA + lifetime revshare combined.`}
+                    {mode === "affiliate" && `${affiliate.tier.name} tier applies ${Math.round(affiliate.tier.rate * 100)}% NGR.${affiliate.hasUpsideRange ? ` Test-period top offer can reach ${money(affiliate.testTotal)} at 35% NGR.` : " This already matches the 35% top offer."}`}
+                    {mode === "streamer" && `${streamer.tier.name}: calculator shows 20% NGR. Fixed terms are individual after review, so no fixed amount is invented here.`}
+                    {mode === "hunter" && `${hunter.tier.name}: ${Math.round(hunter.tier.rate * 100)}% NGR plus 5% Sub-Amb layer and FTD bonus when eligible.`}
+                    {mode === "vip" && `${vip.tier.name}: ${vip.tier.note}. Lifetime RevShare remains ${Math.round(vip.tier.lifetimeShare * 100)}% NGR.`}
                   </p>
                 </div>
 
                 {mode === "affiliate" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat variant="results" label="Estimated Clicks" value={num(affiliate.clicks)} />
-                    <Stat variant="results" label="Registrations" value={num(affiliate.registrations)} />
                     <Stat variant="results" label="FTD" value={num(affiliate.ftd)} />
+                    <Stat variant="results" label="Deposits" value={money(affiliate.deposits)} />
                     <Stat variant="results" label="Core NGR" value={money(affiliate.ngr)} />
-                    <Stat variant="results" label="Test Period" value={money(affiliate.testTotal)} />
-                    <Stat variant="results" label="Post-Review" value={money(affiliate.longTotal)} />
+                    <Stat variant="results" label="Tier Rate" value={`${Math.round(affiliate.tier.rate * 100)}%`} />
                   </div>
                 )}
 
                 {mode === "streamer" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat variant="results" label="Total Viewers" value={num(streamer.totalViewers)} />
-                    <Stat variant="results" label="Registrations" value={num(streamer.regs)} />
                     <Stat variant="results" label="FTD" value={num(streamer.ftd)} />
                     <Stat variant="results" label="Deposits" value={money(streamer.deposits)} />
-                    <Stat variant="results" label="Test Streams" value={money(streamer.testRevIncome)} />
-                    <Stat variant="results" label="KPI Status" value={streamer.kpiReached ? "Reached" : "Below KPI"} />
+                    <Stat variant="results" label="RevShare" value={money(streamer.testRevIncome)} />
+                    <Stat variant="results" label="Tier" value={streamer.tier.name} />
                   </div>
                 )}
 
                 {mode === "hunter" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Stat variant="results" label="Total FTD" value={num(hunter.totalFtd)} />
-                    <Stat variant="results" label="Deposits Generated" value={money(hunter.totalDeposits)} />
-                    <Stat variant="results" label="Estimated NGR" value={money(hunter.totalNgr)} />
-                    <Stat variant="results" label="Network Income" value={money(hunter.networkIncome)} />
+                    <Stat variant="results" label="RevShare" value={money(hunter.revShareIncome)} />
+                    <Stat variant="results" label="Sub-Amb Layer" value={money(hunter.subAmbIncome)} />
                     <Stat variant="results" label="FTD Bonus" value={money(hunter.extraFtdBonus)} />
-                    <Stat variant="results" label="Share Used" value={pct(hunterShare[0])} />
                   </div>
                 )}
 
@@ -588,7 +683,7 @@ export default function QzinoAmbassadorProgramSite() {
                     <Stat variant="results" label="VIP Deposits" value={money(vip.totalDeposits)} />
                     <Stat variant="results" label="VIP NGR" value={money(vip.totalNgr)} />
                     <Stat variant="results" label="CPA Income" value={money(vip.cpaIncome)} />
-                    <Stat variant="results" label="Lifetime Income" value={money(vip.lifetime)} />
+                    <Stat variant="results" label="Tier CPA" value={money(vip.tier.cpa)} />
                   </div>
                 )}
 
@@ -615,27 +710,85 @@ export default function QzinoAmbassadorProgramSite() {
         </section>
 
         <section id="community" className="py-12">
-          <SectionTitle eyebrow="Community Experience" title="Everything that matters happens inside the community" text="The site gets people interested. The community is the real operating system of the program - where onboarding, communication, tasks, tracking, and progression happen every day." />
-          <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="grid gap-5 md:grid-cols-2">
-              <FeatureCard icon={<Disc3 className="h-5 w-5" />} title="Role-based channels" text="Different participant types get access to the channels, materials, and conversations that match how they earn." />
-              <FeatureCard icon={<BarChart3 className="h-5 w-5" />} title="Tracking and visibility" text="Performance, roles, and progression are tied to the community-driven system instead of scattered communication." />
-              <FeatureCard icon={<Trophy className="h-5 w-5" />} title="Live leaderboard" text="Competition and status are visible inside the hub, helping the best participants stay engaged and push harder." />
-              <FeatureCard icon={<Users className="h-5 w-5" />} title="Direct access to team" text="Stronger candidates don’t wait in generic support flows. They move directly into review, guidance, and faster scaling." />
-            </div>
+          <SectionTitle eyebrow="Community Experience" title="The operating layer behind the program" text="Discord is where ambassadors get sorted, briefed, tracked, reviewed, and moved into higher-value opportunities. The community is designed as a workflow, not just a chat." />
+          <div className="mt-10 overflow-hidden rounded-[34px] border border-white/[0.08] bg-[radial-gradient(circle_at_80%_0%,rgba(176,237,0,0.12),transparent_34%),linear-gradient(180deg,rgba(24,24,27,0.92),rgba(8,8,8,0.94))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.34)] md:p-7">
+            <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    icon: <Disc3 className="h-4 w-4" />,
+                    step: "01",
+                    title: "Role routing",
+                    text: "Affiliate, Streamer, Hunter, and VIP candidates enter the right channel from day one.",
+                  },
+                  {
+                    icon: <ClipboardCheck className="h-4 w-4" />,
+                    step: "02",
+                    title: "Briefs & tasks",
+                    text: "Clear onboarding, promo assets, tracking links, and next actions in one place.",
+                  },
+                  {
+                    icon: <BarChart3 className="h-4 w-4" />,
+                    step: "03",
+                    title: "Performance review",
+                    text: "FTD, deposits, NGR, GEO, and quality signals drive the move into stronger terms.",
+                  },
+                  {
+                    icon: <Trophy className="h-4 w-4" />,
+                    step: "04",
+                    title: "Status & rewards",
+                    text: "Tiers, badges, leaderboards, and bonus access keep top contributors visible.",
+                  },
+                ].map((item) => (
+                  <div key={item.step} className="rounded-3xl border border-white/[0.08] bg-black/25 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#B0ED00]/15 bg-[#B0ED00]/10 text-[#B0ED00]">
+                        {item.icon}
+                      </div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-600">{item.step}</div>
+                    </div>
+                    <div className="mt-5 text-lg font-semibold tracking-tight text-white">{item.title}</div>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">{item.text}</p>
+                  </div>
+                ))}
+              </div>
 
-            <Card className="rounded-[30px] p-6 md:p-7">
-              <div className="text-2xl font-semibold">Inside the community</div>
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm leading-7 text-zinc-400">
-                This is not just a chat. It is the main environment where people enter the program, get sorted by role, receive instructions, and grow into stronger monetization paths.
+              <div className="rounded-[30px] border border-white/[0.08] bg-black/35 p-5 md:p-6">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#B0ED00]">Discord Hub</div>
+                    <div className="mt-3 text-3xl font-semibold tracking-tight text-white">One place for onboarding, tracking, and reviews.</div>
+                  </div>
+                  <a
+                    href="https://discord.gg/R3EpXeQf"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-[#B0ED00]/25 bg-[#B0ED00]/10 px-4 py-2.5 text-sm font-semibold text-[#B0ED00] transition hover:bg-[#B0ED00] hover:text-black"
+                  >
+                    Join Discord
+                  </a>
+                </div>
+
+                <div className="mt-6 grid gap-3">
+                  {[
+                    ["Access", "Approved contributors only"],
+                    ["Channels", "Separated by role and tier"],
+                    ["Tracking", "Links, promos, FTD, deposits, NGR"],
+                    ["Reviews", "Performance-based term upgrades"],
+                    ["Rewards", "Leaderboard, badge, test-deposit access"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex flex-col gap-1 rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{label}</div>
+                      <div className="text-sm font-medium text-zinc-200">{value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[#B0ED00]/15 bg-[#B0ED00]/5 p-4 text-sm leading-6 text-zinc-300">
+                  The goal is simple: every serious ambassador should know where they stand, what to do next, and what unlocks the next tier.
+                </div>
               </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Stat variant="compact" label="Onboarding" value="Inside community" />
-                <Stat variant="compact" label="Task Flow" value="Role-based" />
-                <Stat variant="compact" label="Leaderboard" value="Live" />
-                <Stat variant="compact" label="Access" value="For contributors" />
-              </div>
-            </Card>
+            </div>
           </div>
         </section>
 
