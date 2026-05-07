@@ -6,6 +6,7 @@ import {
   BadgeDollarSign,
   BarChart3,
   ClipboardCheck,
+  ChevronDown,
   Crown,
   Disc3,
   MonitorPlay,
@@ -441,7 +442,7 @@ export default function QzinoAmbassadorProgramSite() {
               <a href="#program" className="text-sm text-zinc-400 transition hover:text-white">Program</a>
               <a href="#faq" className="text-sm text-zinc-400 transition hover:text-white">FAQ</a>
             </div>
-            <a href="https://discord.gg/R3EpXeQf" target="_blank" rel="noreferrer" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[#c6ff22]">
+            <a href="https://discord.gg/EPD2QK8tP4" target="_blank" rel="noreferrer" className="rounded-xl bg-[#B0ED00] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[#c6ff22]">
               Join the community
             </a>
           </div>
@@ -768,7 +769,7 @@ export default function QzinoAmbassadorProgramSite() {
                     <div className="mt-3 text-3xl font-semibold tracking-tight text-white">Discord supports the lifecycle. It does not replace review or tracking.</div>
                   </div>
                   <a
-                    href="https://discord.gg/R3EpXeQf"
+                    href="https://discord.gg/EPD2QK8tP4"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-[#B0ED00]/25 bg-[#B0ED00]/10 px-4 py-2.5 text-sm font-semibold text-[#B0ED00] transition hover:bg-[#B0ED00] hover:text-black"
@@ -883,7 +884,7 @@ export default function QzinoAmbassadorProgramSite() {
               </div>
               <div className="flex w-full max-w-[22rem] flex-col gap-3">
                 <a
-                  href="https://discord.gg/R3EpXeQf"
+                  href="https://discord.gg/EPD2QK8tP4"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex min-h-[3.75rem] w-full items-center justify-center gap-3 rounded-2xl bg-[#B0ED00] px-6 py-3.5 text-lg font-semibold tracking-tight text-black shadow-[0_12px_30px_rgba(176,237,0,0.16)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#c6ff22]"
@@ -903,40 +904,45 @@ export default function QzinoAmbassadorProgramSite() {
       </div>
 
       {openForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-black p-6 text-white shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 px-4 py-6 backdrop-blur-sm">
+          <div className="mx-auto flex min-h-full items-center justify-center">
+            <div className="max-h-[calc(100vh-3rem)] w-full max-w-3xl overflow-y-auto rounded-[32px] border border-white/10 bg-black p-6 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-8">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-lg font-semibold">Ambassador application</div>
-                <p className="text-sm text-zinc-400">Review-ready information for profile assignment and setup</p>
+                <div className="text-2xl font-semibold tracking-tight md:text-[2rem]">Ambassador application</div>
+                <p className="mt-2 text-base text-zinc-400 md:text-lg">Review-ready information for profile assignment and setup</p>
               </div>
               <button type="button" onClick={() => setOpenForm(false)} className="text-zinc-400 transition hover:text-white">
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleApplicationSubmit} className="mt-4 space-y-4">
-              <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-[#B0ED00]">
-                <option>Content & Traffic</option>
-                <option>Streamer</option>
-                <option>Player Hunter</option>
-              </select>
-              <input required value={primaryPlatform} onChange={(e) => setPrimaryPlatform(e.target.value)} placeholder="Primary platform / channel" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input required value={primaryGeo} onChange={(e) => setPrimaryGeo(e.target.value)} placeholder="Main GEO" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input required value={trafficSource} onChange={(e) => setTrafficSource(e.target.value)} placeholder="Traffic source / audience proof" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input required value={qzerId} onChange={(e) => setQzerId(e.target.value)} placeholder="Qzer ID" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input required value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="Telegram (@username)" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <input value={discordUsername} onChange={(e) => setDiscordUsername(e.target.value)} placeholder="Discord username (optional)" className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
-              <textarea value={experience} onChange={(e) => setExperience(e.target.value)} placeholder="Previous gambling / betting / affiliate experience (optional)" className="min-h-[110px] w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+            <form onSubmit={handleApplicationSubmit} className="mt-6 space-y-4 md:space-y-5">
+              <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <div className="relative">
+                <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className="h-20 w-full appearance-none rounded-[24px] border border-[#B0ED00] bg-black px-7 pr-16 text-[1.05rem] text-white outline-none focus:border-[#c6ff22]">
+                  <option>Content & Traffic</option>
+                  <option>Streamer</option>
+                  <option>Player Hunter</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-7 top-1/2 h-6 w-6 -translate-y-1/2 text-white/80" />
+              </div>
+              <input required value={primaryPlatform} onChange={(e) => setPrimaryPlatform(e.target.value)} placeholder="Primary platform / channel" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={primaryGeo} onChange={(e) => setPrimaryGeo(e.target.value)} placeholder="Main GEO" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={trafficSource} onChange={(e) => setTrafficSource(e.target.value)} placeholder="Traffic source / audience proof" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={qzerId} onChange={(e) => setQzerId(e.target.value)} placeholder="Qzer ID" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input required value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="Telegram (@username)" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <input value={discordUsername} onChange={(e) => setDiscordUsername(e.target.value)} placeholder="Discord username (optional)" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
+              <textarea value={experience} onChange={(e) => setExperience(e.target.value)} placeholder="Previous gambling / betting / affiliate experience (optional)" className="min-h-[180px] w-full rounded-[24px] border border-white/10 bg-black px-7 py-6 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
 
               {submitMessage ? <p className="text-sm text-zinc-300">{submitMessage}</p> : null}
 
-              <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[#B0ED00] px-5 py-3 font-semibold text-black transition hover:bg-[#c6ff22] disabled:opacity-60">
+              <button type="submit" disabled={isSubmitting} className="mt-2 min-h-[5rem] w-full rounded-[24px] bg-[#B0ED00] px-6 py-4 text-2xl font-semibold tracking-tight text-black transition hover:bg-[#c6ff22] disabled:opacity-60">
                 {isSubmitting ? "Submitting..." : "Submit Application"}
               </button>
             </form>
+          </div>
           </div>
         </div>
       )}
