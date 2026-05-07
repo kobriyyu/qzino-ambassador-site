@@ -398,7 +398,14 @@ export default function QzinoAmbassadorProgramSite() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to submit application.");
+      const result = (await res.json().catch(() => null)) as
+        | { message?: string; error?: string; ok?: boolean }
+        | null;
+
+      if (!res.ok) {
+        throw new Error(result?.error || result?.message || "Failed to submit application.");
+      }
+
       setSubmitMessage("Application submitted successfully.");
       setEmail("");
       setFullName("");
@@ -893,6 +900,7 @@ export default function QzinoAmbassadorProgramSite() {
                 </a>
                 <button
                   type="button"
+                  onClick={() => setOpenForm(true)}
                   className="inline-flex min-h-[3.75rem] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 py-3.5 text-lg font-medium tracking-tight text-white transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
                 >
                   Contact Program Team
