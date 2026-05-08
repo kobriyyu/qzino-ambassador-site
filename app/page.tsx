@@ -289,7 +289,7 @@ export default function QzinoAmbassadorProgramSite() {
   const [qzerId, setQzerId] = useState("");
   const [telegramUsername, setTelegramUsername] = useState("");
   const [discordUsername, setDiscordUsername] = useState("");
-  const [profileType, setProfileType] = useState("Content & Traffic");
+  const [profileType, setProfileType] = useState("Creators");
   const [primaryPlatform, setPrimaryPlatform] = useState("");
   const [primaryGeo, setPrimaryGeo] = useState("");
   const [trafficSource, setTrafficSource] = useState("");
@@ -412,7 +412,7 @@ export default function QzinoAmbassadorProgramSite() {
       setQzerId("");
       setTelegramUsername("");
       setDiscordUsername("");
-      setProfileType("Content & Traffic");
+      setProfileType("Creators");
       setPrimaryPlatform("");
       setPrimaryGeo("");
       setTrafficSource("");
@@ -526,7 +526,7 @@ export default function QzinoAmbassadorProgramSite() {
         <section id="roles" className="py-12">
           <SectionTitle eyebrow="Core Profiles" title="Three profiles, one standardized lifecycle" text="Each ambassador is assigned one dominant profile. The profile defines KPI, bonus logic, and review criteria. Cross-channel activity still rolls into one tracking setup." />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <FeatureCard icon={<Wifi className="h-5 w-5" />} title="Content & Traffic" text="Audience, posting, and distribution are only valuable when they convert into validated $20+ FTD and long-term NGR." />
+            <FeatureCard icon={<Wifi className="h-5 w-5" />} title="Creators" text="Audience, posting, and distribution are only valuable when they convert into validated $20+ FTD and long-term NGR." />
             <FeatureCard icon={<MonitorPlay className="h-5 w-5" />} title="Streamer" text="Live conversion is the core signal. Fixed payments and test deposits only make sense when stream deposits and NGR justify them." />
             <FeatureCard icon={<Target className="h-5 w-5" />} title="Player Hunter" text="No big audience required. What matters is player quality, VIP FTD, wager behavior, and clean fraud markers." />
           </div>
@@ -550,7 +550,7 @@ export default function QzinoAmbassadorProgramSite() {
               </div>
               <div className="flex w-full flex-nowrap gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black p-1 lg:w-auto lg:overflow-visible">
                 {[
-                  ["affiliate", "Content & Traffic"],
+                  ["affiliate", "Creators"],
                   ["streamer", "Streamer"],
                   ["vip", "Player Hunter"],
                 ].map(([key, label]) => (
@@ -865,7 +865,7 @@ export default function QzinoAmbassadorProgramSite() {
           <SectionTitle eyebrow="FAQ" title="The main objections answered directly" text="The site should remove hesitation fast without turning into an overloaded document." />
           <div className="mt-10 rounded-[30px] border border-white/10 bg-zinc-950 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.2)] md:p-6">
             {[
-              ["Who is this built for?", "Content & Traffic operators, Streamers, and Player Hunters who can generate tracked gambling or betting performance."],
+              ["Who is this built for?", "Creators, Streamers, and Player Hunters who can generate tracked gambling or betting performance."],
               ["Do I join the active program immediately?", "No. Approval, profile assignment, traffic-source validation, and tracking setup happen before you move into the active cycle."],
               ["What is Start Period for?", "It validates traffic quality, FTD, NGR, deposits, and fraud signals before the first full review."],
               ["Is Discord the main operating system?", "No. Discord is the community and support layer. Affilka and the internal review cycle are the core operating systems."],
@@ -930,7 +930,7 @@ export default function QzinoAmbassadorProgramSite() {
               <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
               <div className="relative">
                 <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className="h-20 w-full appearance-none rounded-[24px] border border-[#B0ED00] bg-black px-7 pr-16 text-[1.05rem] text-white outline-none focus:border-[#c6ff22]">
-                  <option>Content & Traffic</option>
+                  <option>Creators</option>
                   <option>Streamer</option>
                   <option>Player Hunter</option>
                 </select>
