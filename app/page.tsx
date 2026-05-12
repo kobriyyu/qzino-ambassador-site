@@ -9,7 +9,7 @@ import {
   ChevronDown,
   Crown,
   Disc3,
-  MonitorPlay,
+  HelpCircle,
   Sparkles,
   ShieldCheck,
   Target,
@@ -30,15 +30,8 @@ function num(v: number) {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(v);
 }
 
-function rangeMoney(min: number, max: number) {
-  const low = Math.min(min, max);
-  const high = Math.max(min, max);
-  if (Math.round(low) === Math.round(high)) return money(high);
-  return `${money(low)}-${money(high)}`;
-}
-
 function estimateNgrFromDeposits(deposits: number) {
-  return deposits * 0.04;
+  return deposits * 0.03;
 }
 
 function startPeriodReward(ftd: number, ngr: number) {
@@ -60,11 +53,6 @@ function creatorTier(ftd: number) {
   if (ftd >= 35) return { name: "Top", rate: 0.35, next: "Top public tier unlocked", ftdBonus: 5 };
   if (ftd >= 15) return { name: "Mid", rate: 0.33, next: `${num(35 - ftd)} FTD to Top`, ftdBonus: 4 };
   return { name: "Start", rate: 0.3, next: `${num(Math.max(15 - ftd, 0))} FTD to Mid`, ftdBonus: 3 };
-}
-
-function streamerReviewStatus(deposits: number) {
-  if (deposits >= 1200) return { name: "KPI Passed", fixedEligible: true, next: "Fixed terms can be reviewed individually" };
-  return { name: "Start Period", fixedEligible: false, next: `${money(1200 - deposits)} deposits to streamer KPI benchmark` };
 }
 
 function vipCpaBracket(avgDeposit: number) {
@@ -211,6 +199,8 @@ function MiniPill({ children }: { children: React.ReactNode }) {
 function RangeRow({
   label,
   value,
+  hint,
+  footnote,
   min,
   max,
   step,
@@ -219,6 +209,8 @@ function RangeRow({
 }: {
   label: string;
   value: string;
+  hint?: string;
+  footnote?: string;
   min: number;
   max: number;
   step: number;
@@ -228,7 +220,13 @@ function RangeRow({
   return (
     <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-sm text-zinc-300">{label}</span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-zinc-300">{label}</span>
+            {hint ? <HelpHint text={hint} /> : null}
+          </div>
+          {footnote ? <div className="mt-1 text-xs leading-5 text-zinc-500">{footnote}</div> : null}
+        </div>
         <span className="text-sm font-semibold text-[#B0ED00]">{value}</span>
       </div>
       <input
@@ -244,11 +242,56 @@ function RangeRow({
   );
 }
 
-function AssumptionPill({ label, value }: { label: string; value: string }) {
+function HelpHint({ text }: { text: string }) {
   return (
-    <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-xs text-zinc-400">
-      <span className="text-zinc-500">{label}: </span>
-      <span className="font-medium text-zinc-200">{value}</span>
+    <span className="group relative inline-flex">
+      <span
+        tabIndex={0}
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-zinc-500 outline-none transition hover:text-[#B0ED00] focus:text-[#B0ED00]"
+      >
+        <HelpCircle className="h-3.5 w-3.5" />
+      </span>
+      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-zinc-950/95 px-3 py-2 text-left text-xs leading-5 text-zinc-300 shadow-[0_18px_45px_rgba(0,0,0,0.35)] group-hover:block group-focus-within:block">
+        {text}
+      </span>
+    </span>
+  );
+}
+
+function FormulaRow({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-sm text-zinc-300">{label}</span>
+        {hint ? <HelpHint text={hint} /> : null}
+      </div>
+      <span className="text-right text-sm font-semibold text-white">{value}</span>
+    </div>
+  );
+}
+
+function OutcomeCard({
+  eyebrow,
+  value,
+  detail,
+}: {
+  eyebrow: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">{eyebrow}</div>
+      <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">{value}</div>
+      <p className="mt-3 text-sm leading-6 text-zinc-400">{detail}</p>
     </div>
   );
 }
@@ -282,7 +325,7 @@ function RuleRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function QzinoAmbassadorProgramSite() {
-  const [mode, setMode] = useState<"affiliate" | "streamer" | "vip">("affiliate");
+  const [mode, setMode] = useState<"affiliate" | "vip">("affiliate");
   const [openForm, setOpenForm] = useState(false);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -300,9 +343,6 @@ export default function QzinoAmbassadorProgramSite() {
   const [monthlyFtd, setMonthlyFtd] = useState([45]);
   const [avgDeposit, setAvgDeposit] = useState([110]);
 
-  const [streamFtd, setStreamFtd] = useState([18]);
-  const [streamDeposits, setStreamDeposits] = useState([2200]);
-
   const [vipPlayers, setVipPlayers] = useState([4]);
   const [vipFtd, setVipFtd] = useState([20]);
   const [avgVipDeposit, setAvgVipDeposit] = useState([900]);
@@ -318,19 +358,6 @@ export default function QzinoAmbassadorProgramSite() {
     const hasUpsideRange = Math.round(startPeriod.total) !== Math.round(longTotal);
     return { ftd, deposits, ngr, testTotal: startPeriod.total, longTotal, bestFit, tier, hasUpsideRange, welcomeBonus: startPeriod.welcomeBonus };
   }, [monthlyFtd, avgDeposit]);
-
-  const streamer = useMemo(() => {
-    const ftd = streamFtd[0];
-    const deposits = streamDeposits[0];
-    const performanceTier = creatorTier(ftd);
-    const review = streamerReviewStatus(deposits);
-    const ngr = estimateNgrFromDeposits(deposits);
-    const startPeriod = startPeriodReward(ftd, ngr);
-    const activeTotal = activeCycleReward(ftd, ngr, performanceTier.rate, performanceTier.ftdBonus);
-    const kpiReached = deposits >= 1200;
-    const verdict = kpiReached ? "Deposit KPI reached - fixed can be reviewed individually" : "Base reward model only until deposit KPI is proven";
-    return { ftd, deposits, ngr, testTotal: startPeriod.total, longTotal: activeTotal, verdict, kpiReached, tier: performanceTier, review, welcomeBonus: startPeriod.welcomeBonus };
-  }, [streamFtd, streamDeposits]);
 
   const vip = useMemo(() => {
     const tier = creatorTier(vipFtd[0]);
@@ -356,18 +383,6 @@ export default function QzinoAmbassadorProgramSite() {
       welcomeBonus: startPeriod.welcomeBonus,
     };
   }, [vipPlayers, vipFtd, avgVipDeposit]);
-
-  function outcomeCopy(startValue: number, activeValue: number, startLabel: string, activeLabel: string) {
-    if (Math.round(startValue) === Math.round(activeValue)) {
-      return `Current preview is the same in ${startLabel.toLowerCase()} and ${activeLabel.toLowerCase()}.`;
-    }
-
-    if (startValue > activeValue) {
-      return `${startLabel} is currently higher because Welcome Bonus is active. ${activeLabel} settles lower after the boosted entry incentives end.`;
-    }
-
-    return `${activeLabel} is currently higher because the ongoing tier reward outgrows the one-time Start Period boost. ${startLabel} remains the entry-stage upside.`;
-  }
 
   async function handleApplicationSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -459,7 +474,7 @@ export default function QzinoAmbassadorProgramSite() {
           <div>
             <h1 className="mt-6 max-w-5xl text-5xl font-semibold leading-[0.92] tracking-[-0.05em] md:text-7xl">Qzino Ambassador Program</h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-              Built for influencers, streamers, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
+              Built for creators, affiliates, and sourcers who want more than one-off deals. You are not just joining a program - you are entering a system designed to monetize your audience long-term.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <MiniPill>Up to 35% revenue share</MiniPill>
@@ -524,10 +539,9 @@ export default function QzinoAmbassadorProgramSite() {
         </section>
 
         <section id="roles" className="py-12">
-          <SectionTitle eyebrow="Core Profiles" title="Three profiles, one standardized lifecycle" text="Each ambassador is assigned one dominant profile. The profile defines KPI, bonus logic, and review criteria. Cross-channel activity still rolls into one tracking setup." />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <SectionTitle eyebrow="Core Profiles" title="Two clear profiles, one standardized lifecycle" text="Each ambassador is assigned one dominant profile. The profile defines KPI, bonus logic, and review criteria." />
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
             <FeatureCard icon={<Wifi className="h-5 w-5" />} title="Creators" text="Audience, posting, and distribution are only valuable when they convert into validated $20+ FTD and long-term NGR." />
-            <FeatureCard icon={<MonitorPlay className="h-5 w-5" />} title="Streamer" text="Live conversion is the core signal. Fixed payments and test deposits only make sense when stream deposits and NGR justify them." />
             <FeatureCard icon={<Target className="h-5 w-5" />} title="Player Hunter" text="No big audience required. What matters is player quality, VIP FTD, wager behavior, and clean fraud markers." />
           </div>
         </section>
@@ -551,7 +565,6 @@ export default function QzinoAmbassadorProgramSite() {
               <div className="flex w-full flex-nowrap gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black p-1 lg:w-auto lg:overflow-visible">
                 {[
                   ["affiliate", "Creators"],
-                  ["streamer", "Streamer"],
                   ["vip", "Player Hunter"],
                 ].map(([key, label]) => (
                   <button
@@ -569,13 +582,6 @@ export default function QzinoAmbassadorProgramSite() {
             <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
               <Card className="bg-black/30">
                 <div className="space-y-4 p-4 md:p-5">
-                  <div className="rounded-2xl border border-[#B0ED00]/15 bg-[#B0ED00]/5 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">Document-based model</div>
-                    <p className="mt-2 text-sm leading-6 text-zinc-400">
-                      Public outputs follow strategy 3.2 as closely as possible: progressive NGR, FTD bonus, Welcome Bonus, VIP CPA brackets, and review-based streamer fixed terms.
-                    </p>
-                  </div>
-
                   {mode === "affiliate" && (
                     <>
                       <TierCard
@@ -583,20 +589,28 @@ export default function QzinoAmbassadorProgramSite() {
                         detail={`${Math.round(affiliate.tier.rate * 100)}% NGR + $${affiliate.tier.ftdBonus} FTD bonus at the current level.`}
                         next={affiliate.tier.next}
                       />
-                      <RangeRow label="Monthly FTD" value={num(monthlyFtd[0])} min={5} max={250} step={5} state={monthlyFtd} setState={setMonthlyFtd} />
-                      <RangeRow label="Average Deposit" value={money(avgDeposit[0])} min={20} max={500} step={10} state={avgDeposit} setState={setAvgDeposit} />
-                    </>
-                  )}
-
-                  {mode === "streamer" && (
-                    <>
-                      <TierCard
-                        name={streamer.review.name}
-                        detail={`${Math.round(streamer.tier.rate * 100)}% NGR + $${streamer.tier.ftdBonus} per valid $20+ FTD. Fixed stays outside the public calculator until review.`}
-                        next={streamer.review.next}
+                      <RangeRow
+                        label="Monthly valid FTD"
+                        value={num(monthlyFtd[0])}
+                        hint="FTD means First Time Depositors. In this preview we count valid $20+ first deposits."
+                        footnote="How many first-time depositing players you expect to bring in one month."
+                        min={5}
+                        max={250}
+                        step={5}
+                        state={monthlyFtd}
+                        setState={setMonthlyFtd}
                       />
-                      <RangeRow label="Monthly FTD from Streams" value={num(streamFtd[0])} min={3} max={150} step={3} state={streamFtd} setState={setStreamFtd} />
-                      <RangeRow label="Monthly Deposits Generated" value={money(streamDeposits[0])} min={300} max={25000} step={100} state={streamDeposits} setState={setStreamDeposits} />
+                      <RangeRow
+                        label="Average deposit per FTD"
+                        value={money(avgDeposit[0])}
+                        hint="This is the average deposit size per valid FTD used for the preview."
+                        footnote="Example: if 100 new players deposit around $100 each, total deposits are about $10,000."
+                        min={20}
+                        max={500}
+                        step={10}
+                        state={avgDeposit}
+                        setState={setAvgDeposit}
+                      />
                     </>
                   )}
 
@@ -607,47 +621,48 @@ export default function QzinoAmbassadorProgramSite() {
                         detail={`${Math.round(vip.tier.rate * 100)}% NGR + $${vip.tier.ftdBonus} per valid $20+ FTD, plus ${money(vip.cpaBracket.cpa)} CPA when the VIP threshold is reached.`}
                         next={vip.cpaBracket.next}
                       />
-                      <RangeRow label="Monthly Valid $20+ FTD" value={num(vipFtd[0])} min={3} max={150} step={1} state={vipFtd} setState={setVipFtd} />
-                      <RangeRow label="VIP Players Acquired" value={num(vipPlayers[0])} min={1} max={20} step={1} state={vipPlayers} setState={setVipPlayers} />
-                      <RangeRow label="Average VIP Deposit" value={money(avgVipDeposit[0])} min={500} max={5000} step={50} state={avgVipDeposit} setState={setAvgVipDeposit} />
+                      <RangeRow
+                        label="Monthly valid $20+ FTD"
+                        value={num(vipFtd[0])}
+                        hint="Used for the progressive NGR tier and FTD bonus side of the model."
+                        footnote="This is separate from VIP CPA, which depends on deposit brackets."
+                        min={3}
+                        max={150}
+                        step={1}
+                        state={vipFtd}
+                        setState={setVipFtd}
+                      />
+                      <RangeRow
+                        label="VIP players acquired"
+                        value={num(vipPlayers[0])}
+                        hint="How many qualified higher-value players you expect to bring in the month."
+                        footnote="Used for CPA bracket calculation."
+                        min={1}
+                        max={20}
+                        step={1}
+                        state={vipPlayers}
+                        setState={setVipPlayers}
+                      />
+                      <RangeRow
+                        label="Average VIP deposit"
+                        value={money(avgVipDeposit[0])}
+                        hint="Used to determine whether you are in the $50, $100, or $200 public VIP CPA bracket."
+                        footnote="Public VIP CPA starts from $500+ average deposit in this preview."
+                        min={500}
+                        max={5000}
+                        step={50}
+                        state={avgVipDeposit}
+                        setState={setAvgVipDeposit}
+                      />
                     </>
                   )}
 
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <AssumptionPill label="NGR" value="4%" />
-                    {mode === "affiliate" && (
-                      <>
-                        <AssumptionPill label="Current tier" value={`${affiliate.tier.name} / ${Math.round(affiliate.tier.rate * 100)}%`} />
-                        <AssumptionPill label="Welcome" value={`$${Math.round(Math.min(affiliate.welcomeBonus, 500))} current estimate`} />
-                      </>
-                    )}
-                    {mode === "streamer" && (
-                      <>
-                        <AssumptionPill label="Current tier" value={`${streamer.tier.name} / ${Math.round(streamer.tier.rate * 100)}%`} />
-                        <AssumptionPill label="Welcome" value={`$${Math.round(Math.min(streamer.welcomeBonus, 500))} start-period estimate`} />
-                        <AssumptionPill label="Fixed" value={streamer.review.fixedEligible ? "Review after KPI" : "Held for review"} />
-                      </>
-                    )}
-                    {mode === "vip" && (
-                      <>
-                        <AssumptionPill label="Current tier" value={`${vip.tier.name} / ${Math.round(vip.tier.rate * 100)}%`} />
-                        <AssumptionPill label="CPA" value={money(vip.cpaBracket.cpa)} />
-                        <AssumptionPill label="Welcome" value={`$${Math.round(Math.min(vip.welcomeBonus, 500))} start-period estimate`} />
-                      </>
-                    )}
-                  </div>
-
                   <div className="grid gap-2 pt-1">
+                    <RuleRow label="Preview assumption" value="Estimated NGR = 3% of deposits" />
                     {mode === "affiliate" && (
                       <>
                         <RuleRow label="Public thresholds" value="15+ / 35+ valid FTD" />
                         <RuleRow label="Model" value="30% / 33% / 35% NGR" />
-                      </>
-                    )}
-                    {mode === "streamer" && (
-                      <>
-                        <RuleRow label="Base model" value="30% / 33% / 35% + $3-$5 FTD" />
-                        <RuleRow label="Fixed" value="Individual after deposit review" />
                       </>
                     )}
                     {mode === "vip" && (
@@ -662,34 +677,68 @@ export default function QzinoAmbassadorProgramSite() {
 
               <div className="space-y-4">
                 <div className="rounded-[28px] bg-[#B0ED00] p-5 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-6">
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">Estimated Outcome</div>
-                  <div className="mt-3 text-4xl font-bold md:text-5xl">
-                    {mode === "affiliate" && rangeMoney(affiliate.longTotal, affiliate.testTotal)}
-                    {mode === "streamer" && rangeMoney(streamer.longTotal, streamer.testTotal)}
-                    {mode === "vip" && rangeMoney(vip.total, vip.testTotal)}
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">How to read your estimate</div>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <OutcomeCard
+                      eyebrow="Start Period"
+                      value={
+                        mode === "affiliate"
+                          ? money(affiliate.testTotal)
+                          : money(vip.testTotal)
+                      }
+                      detail={
+                        mode === "affiliate"
+                          ? `30% of estimated NGR plus Welcome Bonus (${money(Math.min(affiliate.welcomeBonus, 500))}).`
+                          : `30% of estimated NGR plus Welcome Bonus (${money(Math.min(vip.welcomeBonus, 500))}).`
+                      }
+                    />
+                    <OutcomeCard
+                      eyebrow="Active Monthly"
+                      value={
+                        mode === "affiliate"
+                          ? money(affiliate.longTotal)
+                          : money(vip.total)
+                      }
+                      detail={
+                        mode === "affiliate"
+                          ? `${Math.round(affiliate.tier.rate * 100)}% of estimated NGR + $${affiliate.tier.ftdBonus} per valid FTD.`
+                          : `${Math.round(vip.tier.rate * 100)}% of estimated NGR + $${vip.tier.ftdBonus} per valid FTD + ${money(vip.cpaBracket.cpa)} VIP CPA.`
+                      }
+                    />
                   </div>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-black/70">
-                    {mode === "affiliate" && `${affiliate.tier.name} tier applies ${Math.round(affiliate.tier.rate * 100)}% NGR + $${affiliate.tier.ftdBonus} per valid $20+ FTD. ${outcomeCopy(affiliate.testTotal, affiliate.longTotal, "Start Period", "Active Cycle")}`}
-                    {mode === "streamer" && `${streamer.tier.name} performance tier applies ${Math.round(streamer.tier.rate * 100)}% NGR + $${streamer.tier.ftdBonus} per valid $20+ FTD. ${outcomeCopy(streamer.testTotal, streamer.longTotal, "Start Period", "Active Cycle")} Fixed and test-deposit economics stay outside this preview and are reviewed individually.`}
-                    {mode === "vip" && `${vip.cpaBracket.name}: ${vip.cpaBracket.note}. Base reward uses ${Math.round(vip.tier.rate * 100)}% NGR + $${vip.tier.ftdBonus} per valid $20+ FTD, then adds the public VIP CPA bracket. ${outcomeCopy(vip.testTotal, vip.total, "Start Period", "Active Cycle")}`}
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-black/70">
+                    Left: Start Period. Right: ongoing monthly reward after the welcome boost ends. These are two separate scenarios, not two amounts added together.
                   </p>
                 </div>
 
+                <Card className="bg-black/30">
+                  <div className="space-y-3 p-4 md:p-5">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B0ED00]">Quick math</div>
+                    {mode === "affiliate" && (
+                      <>
+                        <FormulaRow label="Estimated deposits" value={`${num(affiliate.ftd)} × ${money(avgDeposit[0])} = ${money(affiliate.deposits)}`} hint="Valid FTD multiplied by average deposit per FTD." />
+                        <FormulaRow label="Estimated NGR" value={`${money(affiliate.deposits)} × 3% = ${money(affiliate.ngr)}`} hint="3% is a simple landing-page assumption used only for this preview. Final review uses real Affilka tracking." />
+                        <FormulaRow label="Start Period reward" value={`${money(affiliate.ngr)} × 30% + ${money(Math.min(affiliate.welcomeBonus, 500))} = ${money(affiliate.testTotal)}`} hint="Start Period includes the one-time Welcome Bonus." />
+                        <FormulaRow label="Active Monthly reward" value={`${money(affiliate.ngr)} × ${Math.round(affiliate.tier.rate * 100)}% + ${num(affiliate.ftd)} × $${affiliate.tier.ftdBonus} = ${money(affiliate.longTotal)}`} hint="Active Monthly removes the one-time welcome boost and applies the ongoing tier reward." />
+                      </>
+                    )}
+                    {mode === "vip" && (
+                      <>
+                        <FormulaRow label="Estimated deposits" value={`${num(vipPlayers[0])} × ${money(avgVipDeposit[0])} = ${money(vip.totalDeposits)}`} hint="VIP players multiplied by average VIP deposit." />
+                        <FormulaRow label="Estimated NGR" value={`${money(vip.totalDeposits)} × 3% = ${money(vip.totalNgr)}`} hint="Preview assumption only. Final payouts rely on actual tracked revenue." />
+                        <FormulaRow label="Start Period reward" value={`${money(vip.totalNgr)} × 30% + ${money(Math.min(vip.welcomeBonus, 500))} = ${money(vip.testTotal)}`} hint="Start Period includes the one-time welcome side of the model." />
+                        <FormulaRow label="Active Monthly reward" value={`${money(vip.totalNgr)} × ${Math.round(vip.tier.rate * 100)}% + ${num(vip.vipFtd)} × $${vip.tier.ftdBonus} + ${num(vipPlayers[0])} × ${money(vip.cpaBracket.cpa)} = ${money(vip.total)}`} hint="Player Hunter combines NGR share, FTD bonus, and VIP CPA if the deposit bracket is reached." />
+                      </>
+                    )}
+                  </div>
+                </Card>
+
                 {mode === "affiliate" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat variant="results" label="FTD" value={num(affiliate.ftd)} />
+                    <Stat variant="results" label="Valid FTD" value={num(affiliate.ftd)} />
                     <Stat variant="results" label="Deposits" value={money(affiliate.deposits)} />
-                    <Stat variant="results" label="Core NGR" value={money(affiliate.ngr)} />
+                    <Stat variant="results" label="Estimated NGR" value={money(affiliate.ngr)} />
                     <Stat variant="results" label="Welcome Bonus" value={money(Math.min(affiliate.welcomeBonus, 500))} />
-                  </div>
-                )}
-
-                {mode === "streamer" && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Stat variant="results" label="FTD" value={num(streamer.ftd)} />
-                    <Stat variant="results" label="Deposits" value={money(streamer.deposits)} />
-                    <Stat variant="results" label="Core NGR" value={money(streamer.ngr)} />
-                    <Stat variant="results" label="Welcome Bonus" value={money(Math.min(streamer.welcomeBonus, 500))} />
                   </div>
                 )}
 
@@ -697,7 +746,7 @@ export default function QzinoAmbassadorProgramSite() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Stat variant="results" label="Valid FTD" value={num(vip.vipFtd)} />
                     <Stat variant="results" label="VIP Deposits" value={money(vip.totalDeposits)} />
-                    <Stat variant="results" label="VIP NGR" value={money(vip.totalNgr)} />
+                    <Stat variant="results" label="Estimated NGR" value={money(vip.totalNgr)} />
                     <Stat variant="results" label="CPA Income" value={money(vip.cpaIncome)} />
                     <Stat variant="results" label="Welcome Bonus" value={money(Math.min(vip.welcomeBonus, 500))} />
                   </div>
@@ -865,7 +914,7 @@ export default function QzinoAmbassadorProgramSite() {
           <SectionTitle eyebrow="FAQ" title="The main objections answered directly" text="The site should remove hesitation fast without turning into an overloaded document." />
           <div className="mt-10 rounded-[30px] border border-white/10 bg-zinc-950 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.2)] md:p-6">
             {[
-              ["Who is this built for?", "Creators, Streamers, and Player Hunters who can generate tracked gambling or betting performance."],
+              ["Who is this built for?", "Creators and Player Hunters who can generate tracked gambling or betting performance."],
               ["Do I join the active program immediately?", "No. Approval, profile assignment, traffic-source validation, and tracking setup happen before you move into the active cycle."],
               ["What is Start Period for?", "It validates traffic quality, FTD, NGR, deposits, and fraud signals before the first full review."],
               ["Is Discord the main operating system?", "No. Discord is the community and support layer. Affilka and the internal review cycle are the core operating systems."],
@@ -931,7 +980,6 @@ export default function QzinoAmbassadorProgramSite() {
               <div className="relative">
                 <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className="h-20 w-full appearance-none rounded-[24px] border border-[#B0ED00] bg-black px-7 pr-16 text-[1.05rem] text-white outline-none focus:border-[#c6ff22]">
                   <option>Creators</option>
-                  <option>Streamer</option>
                   <option>Player Hunter</option>
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-7 top-1/2 h-6 w-6 -translate-y-1/2 text-white/80" />
