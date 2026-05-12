@@ -288,10 +288,10 @@ function OutcomeCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">{eyebrow}</div>
+    <div className="rounded-[24px] border border-black/10 bg-black/30 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">{eyebrow}</div>
       <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">{value}</div>
-      <p className="mt-3 text-sm leading-6 text-zinc-400">{detail}</p>
+      <p className="mt-3 text-sm leading-6 text-white/70">{detail}</p>
     </div>
   );
 }
@@ -676,8 +676,8 @@ export default function QzinoAmbassadorProgramSite() {
               </Card>
 
               <div className="space-y-4">
-                <div className="rounded-[28px] bg-[#B0ED00] p-5 text-black shadow-[0_0_80px_rgba(176,237,0,0.14)] md:p-6">
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">How to read your estimate</div>
+                <div className="rounded-[28px] border border-[#B0ED00]/15 bg-[linear-gradient(180deg,rgba(18,18,20,0.96),rgba(9,9,11,0.98))] p-5 text-white shadow-[0_0_80px_rgba(176,237,0,0.10)] md:p-6">
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">How to read your estimate</div>
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
                     <OutcomeCard
                       eyebrow="Start Period"
@@ -706,7 +706,7 @@ export default function QzinoAmbassadorProgramSite() {
                       }
                     />
                   </div>
-                  <p className="mt-4 max-w-2xl text-sm leading-6 text-black/70">
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
                     Left: Start Period. Right: ongoing monthly reward after the welcome boost ends. These are two separate scenarios, not two amounts added together.
                   </p>
                 </div>
