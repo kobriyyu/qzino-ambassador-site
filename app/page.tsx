@@ -278,24 +278,6 @@ function FormulaRow({
   );
 }
 
-function OutcomeCard({
-  eyebrow,
-  value,
-  detail,
-}: {
-  eyebrow: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="rounded-[24px] border border-black/10 bg-black/30 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">{eyebrow}</div>
-      <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">{value}</div>
-      <p className="mt-3 text-sm leading-6 text-white/70">{detail}</p>
-    </div>
-  );
-}
-
 function TierCard({
   name,
   detail,
@@ -677,37 +659,28 @@ export default function QzinoAmbassadorProgramSite() {
 
               <div className="space-y-4">
                 <div className="rounded-[28px] border border-[#B0ED00]/15 bg-[linear-gradient(180deg,rgba(18,18,20,0.96),rgba(9,9,11,0.98))] p-5 text-white shadow-[0_0_80px_rgba(176,237,0,0.10)] md:p-6">
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">How to read your estimate</div>
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    <OutcomeCard
-                      eyebrow="Start Period"
-                      value={
-                        mode === "affiliate"
-                          ? money(affiliate.testTotal)
-                          : money(vip.testTotal)
-                      }
-                      detail={
-                        mode === "affiliate"
-                          ? `30% of estimated NGR plus Welcome Bonus (${money(Math.min(affiliate.welcomeBonus, 500))}).`
-                          : `30% of estimated NGR plus Welcome Bonus (${money(Math.min(vip.welcomeBonus, 500))}).`
-                      }
-                    />
-                    <OutcomeCard
-                      eyebrow="Active Monthly"
-                      value={
-                        mode === "affiliate"
-                          ? money(affiliate.longTotal)
-                          : money(vip.total)
-                      }
-                      detail={
-                        mode === "affiliate"
-                          ? `${Math.round(affiliate.tier.rate * 100)}% of estimated NGR + $${affiliate.tier.ftdBonus} per valid FTD.`
-                          : `${Math.round(vip.tier.rate * 100)}% of estimated NGR + $${vip.tier.ftdBonus} per valid FTD + ${money(vip.cpaBracket.cpa)} VIP CPA.`
-                      }
-                    />
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B0ED00]">Estimated Monthly Reward</div>
+                  <div className="mt-4 text-5xl font-semibold tracking-tight text-white md:text-6xl">
+                    {mode === "affiliate" ? money(affiliate.longTotal) : money(vip.total)}
+                  </div>
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-300">
+                    {mode === "affiliate"
+                      ? `${Math.round(affiliate.tier.rate * 100)}% of estimated NGR + $${affiliate.tier.ftdBonus} per valid FTD at your current tier.`
+                      : `${Math.round(vip.tier.rate * 100)}% of estimated NGR + $${vip.tier.ftdBonus} per valid FTD, plus ${money(vip.cpaBracket.cpa)} VIP CPA at your current bracket.`}
+                  </p>
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Start Period estimate</div>
+                    <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-2xl font-semibold tracking-tight text-white">
+                        {mode === "affiliate" ? money(affiliate.testTotal) : money(vip.testTotal)}
+                      </span>
+                      <span className="text-sm leading-6 text-zinc-400">
+                        First stage may differ because Welcome Bonus is included here.
+                      </span>
+                    </div>
                   </div>
                   <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
-                    Left: Start Period. Right: ongoing monthly reward after the welcome boost ends. These are two separate scenarios, not two amounts added together.
+                    The big number above is the ongoing monthly estimate. The Start Period number is only for the entry stage and includes one-time welcome incentives.
                   </p>
                 </div>
 
