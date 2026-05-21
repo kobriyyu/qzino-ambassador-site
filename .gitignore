@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+_env*
+
+# local security testing helpers
+/scripts/security-poc.ts
 
 # vercel
 .vercel

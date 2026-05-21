@@ -2,9 +2,9 @@
 
 ### Stack
 - Framework: `Next.js 16`
-- Package manager: `npm`
-- Build command: `npm run build`
-- Start command: `npm run start`
+- Package manager: `bun`
+- Build command: `bun run build`
+- Start command: `bun run start`
 
 ### Environment Variables
 Create production environment variables before deployment:
@@ -28,8 +28,8 @@ Vercel is the easiest target for this project.
 
 Recommended settings:
 - Framework preset: `Next.js`
-- Install command: `npm install`
-- Build command: `npm run build`
+- Install command: `bun install`
+- Build command: `bun run build`
 - Output: default Next.js output
 
 ### Custom Domain Setup

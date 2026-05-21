@@ -319,6 +319,8 @@ export default function QzinoAmbassadorProgramSite() {
   const [primaryGeo, setPrimaryGeo] = useState("");
   const [trafficSource, setTrafficSource] = useState("");
   const [experience, setExperience] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
+  const [formStartedAt, setFormStartedAt] = useState(Date.now());
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -366,6 +368,13 @@ export default function QzinoAmbassadorProgramSite() {
     };
   }, [vipPlayers, vipFtd, avgVipDeposit]);
 
+  function openApplicationForm() {
+    setCompanyWebsite("");
+    setFormStartedAt(Date.now());
+    setSubmitMessage("");
+    setOpenForm(true);
+  }
+
   async function handleApplicationSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitMessage("");
@@ -391,7 +400,8 @@ export default function QzinoAmbassadorProgramSite() {
           primaryGeo,
           trafficSource,
           experience,
-          submittedAt: new Date().toISOString(),
+          companyWebsite,
+          formStartedAt,
         }),
       });
 
@@ -414,6 +424,8 @@ export default function QzinoAmbassadorProgramSite() {
       setPrimaryGeo("");
       setTrafficSource("");
       setExperience("");
+      setCompanyWebsite("");
+      setFormStartedAt(Date.now());
       setTimeout(() => {
         setOpenForm(false);
         setSubmitMessage("");
@@ -735,7 +747,7 @@ export default function QzinoAmbassadorProgramSite() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setOpenForm(true)}
+                      onClick={openApplicationForm}
                       className="rounded-xl bg-[#B0ED00] px-6 py-4 text-base font-semibold text-black transition hover:bg-[#c6ff22]"
                     >
                       Apply Now
@@ -922,7 +934,7 @@ export default function QzinoAmbassadorProgramSite() {
                 </a>
                 <button
                   type="button"
-                  onClick={() => setOpenForm(true)}
+                  onClick={openApplicationForm}
                   className="inline-flex min-h-[3.75rem] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 py-3.5 text-lg font-medium tracking-tight text-white transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
                 >
                   Contact Program Team
@@ -948,6 +960,16 @@ export default function QzinoAmbassadorProgramSite() {
             </div>
 
             <form onSubmit={handleApplicationSubmit} className="mt-6 space-y-4 md:space-y-5">
+              <div aria-hidden="true" className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden">
+                <label htmlFor="companyWebsite">Company website</label>
+                <input
+                  id="companyWebsite"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={companyWebsite}
+                  onChange={(e) => setCompanyWebsite(e.target.value)}
+                />
+              </div>
               <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
               <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="h-20 w-full rounded-[24px] border border-white/10 bg-black px-7 text-[1.05rem] text-white outline-none placeholder:text-zinc-500 focus:border-[#B0ED00]" />
               <div className="relative">
